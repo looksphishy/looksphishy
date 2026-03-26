@@ -1,12 +1,15 @@
 ---
-import "../styles/globals.css"
+import "../styles/globals.css";
 
 interface Props {
-  title: string
-  description?: string
+	title: string;
+	description?: string;
 }
 
-const { title, description = "Report a phishing URL once. We relay it to Google Safe Browsing, Cloudflare, and other security providers on your behalf." } = Astro.props
+const {
+	title,
+	description = "Report a phishing URL once. We relay it to Google Safe Browsing, Cloudflare, and other security providers on your behalf.",
+} = Astro.props;
 ---
 
 <!doctype html>

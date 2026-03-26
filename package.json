@@ -1,15 +1,22 @@
 {
-  "name": "looksphishy",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test",
-    "typecheck": "turbo typecheck"
-  },
-  "packageManager": "pnpm@10.32.1",
-  "devDependencies": {
-    "turbo": "^2.8.20"
-  }
+	"name": "looksphishy",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"test": "turbo test",
+		"typecheck": "turbo typecheck",
+		"format": "biome format --write .",
+		"format:check": "biome format .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check .",
+		"check:fix": "biome check --write ."
+	},
+	"packageManager": "pnpm@10.32.1",
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.9",
+		"turbo": "^2.8.20"
+	}
 }

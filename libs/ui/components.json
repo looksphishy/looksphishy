@@ -1,20 +1,20 @@
 {
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "radix-nova",
-  "rsc": false,
-  "tsx": true,
-  "tailwind": {
-    "config": "",
-    "css": "src/globals.css",
-    "baseColor": "neutral",
-    "cssVariables": true
-  },
-  "iconLibrary": "lucide",
-  "aliases": {
-    "components": "@looksphishy/ui/components",
-    "utils": "@looksphishy/ui/lib/utils",
-    "hooks": "@looksphishy/ui/hooks",
-    "lib": "@looksphishy/ui/lib",
-    "ui": "@looksphishy/ui/components"
-  }
+	"$schema": "https://ui.shadcn.com/schema.json",
+	"style": "radix-nova",
+	"rsc": false,
+	"tsx": true,
+	"tailwind": {
+		"config": "",
+		"css": "src/globals.css",
+		"baseColor": "neutral",
+		"cssVariables": true
+	},
+	"iconLibrary": "lucide",
+	"aliases": {
+		"components": "@looksphishy/ui/components",
+		"utils": "@looksphishy/ui/lib/utils",
+		"hooks": "@looksphishy/ui/hooks",
+		"lib": "@looksphishy/ui/lib",
+		"ui": "@looksphishy/ui/components"
+	}
 }

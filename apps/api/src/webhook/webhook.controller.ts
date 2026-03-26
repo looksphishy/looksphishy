@@ -1,35 +1,74 @@
-import { Controller, Post, Body, Logger } from "@nestjs/common"
-import { EmailParserService, type CloudflareEmailPayload } from "./email-parser.service.js"
-import { ReportService } from "../report/report.service.js"
+import {
+	Controller,
+	Post,
+	Body,
+	Headers,
+	Logger,
+	UnauthorizedException,
+	BadRequestException,
+} from "@nestjs/common";
+import { z } from "zod";
+import type { EmailParserService } from "./email-parser.service.js";
+import type { ReportService } from "../report/report.service.js";
+import { env } from "../config/env.js";
+import { timingSafeEqual } from "node:crypto";
+
+const emailPayloadSchema = z.object({
+	from: z.string().email(),
+	to: z.string(),
+	subject: z.string(),
+	text: z.string().optional(),
+	html: z.string().optional(),
+	headers: z.record(z.string()).default({}),
+});
 
 @Controller("api/webhooks")
 export class WebhookController {
-  private readonly logger = new Logger(WebhookController.name)
+	private readonly logger = new Logger(WebhookController.name);
 
-  constructor(
-    private emailParser: EmailParserService,
-    private reportService: ReportService,
-  ) {}
+	constructor(
+		private emailParser: EmailParserService,
+		private reportService: ReportService,
+	) {}
 
-  @Post("inbound-email")
-  async handleInboundEmail(@Body() body: CloudflareEmailPayload) {
-    this.logger.log(`Inbound email from ${body.from}`)
+	@Post("inbound-email")
+	async handleInboundEmail(
+		@Body() body: unknown,
+		@Headers("x-webhook-secret") secret?: string,
+	) {
+		if (!secret || !this.verifySecret(secret)) {
+			throw new UnauthorizedException();
+		}
 
-    const urls = this.emailParser.extractUrls(body)
+		const parsed = emailPayloadSchema.safeParse(body);
+		if (!parsed.success) {
+			throw new BadRequestException("Invalid email payload");
+		}
 
-    if (urls.length === 0) {
-      return { processed: 0 }
-    }
+		this.logger.log("Inbound email received for processing");
 
-    const results = await Promise.all(
-      urls.map((url) =>
-        this.reportService.submitReport({
-          url,
-          turnstileToken: "email-bypass",
-        }),
-      ),
-    )
+		const urls = this.emailParser.extractUrls(parsed.data);
 
-    return { processed: results.length }
-  }
+		if (urls.length === 0) {
+			return { processed: 0 };
+		}
+
+		const results = await Promise.all(
+			urls.map((url) =>
+				this.reportService.submitReport(
+					{ url, email: parsed.data.from, turnstileToken: "" },
+					{ source: "email", skipTurnstile: true },
+				),
+			),
+		);
+
+		return { processed: results.length };
+	}
+
+	private verifySecret(provided: string): boolean {
+		const expected = env().WEBHOOK_SECRET;
+		if (provided.length !== expected.length) return false;
+
+		return timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+	}
 }
