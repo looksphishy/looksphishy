@@ -1,110 +1,42 @@
 # 🐟 LooksPhishy.org
 
-> **Report once. Protect everyone.** 🛡️
+**Report once. Protect everyone.** 🛡️
 
-LooksPhishy is an open-source, non-profit **fan-out relay for phishing reports**. It takes the pain out of reporting phishing URLs by automating the distribution to major security providers — so one report reaches Google Safe Browsing, Cloudflare, and more, all at once.
+LooksPhishy is an open-source fan-out relay for phishing reports. You report a phishing URL once, and we send it to Google Safe Browsing, Cloudflare, and other security providers on your behalf.
 
----
+No more filling out five different forms. No more hoping someone sees your report.
 
-## ✨ Why LooksPhishy?
+## 🤔 The problem
 
-Reporting a phishing site today means visiting multiple portals, filling out forms, and hoping someone acts on it. LooksPhishy fixes that:
+You spot a phishing site. Now what? You could report it to Google, then Cloudflare, then your email provider, then... most people give up after the first one. The bad guys know this.
 
-- 📨 **One report, many destinations** — submit a URL and we fan it out to all the right places
-- 🔍 **Automatic verification** — URLs are vetted before relay to avoid false positives
-- ⚡ **Async processing** — reports are queued and processed in the background, fast and reliable
-- 📧 **Email-friendly** — forward a phishing email and we'll extract & report the URL for you
+## 💡 How it works
 
----
+- 📨 **Report a URL** and we relay it to all the major security providers at once
+- 📧 **Forward a phishing email** and we'll pull out the URL and report it for you
+- 🔍 URLs are **verified before relay** so we don't waste anyone's time with false positives
 
-## 🏗️ Architecture
-
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Astro App  │────▶│  NestJS API │────▶│   BullMQ    │
-│  (Frontend) │ tRPC│  (Backend)  │     │  (Workers)  │
-└─────────────┘     └──────┬──────┘     └──────┬──────┘
-                           │                   │
-                    ┌──────┴──────┐     ┌──────┴──────┐
-                    │ PostgreSQL  │     │    Redis     │
-                    │  (Drizzle)  │     │   (Queue)   │
-                    └─────────────┘     └─────────────┘
-```
-
-| Layer        | Tech                              |
-| ------------ | --------------------------------- |
-| 🖥️ Frontend  | Astro + React Islands             |
-| 🔌 API       | NestJS + tRPC (end-to-end types)  |
-| 📬 Queue     | BullMQ (Redis)                    |
-| 🗄️ Database  | PostgreSQL via Drizzle ORM        |
-| 📧 Email In  | Cloudflare Email Workers → Webhook|
-| 📤 Email Out | AWS SES                           |
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **Node.js** ≥ 20
-- **pnpm** ≥ 10
-- **PostgreSQL** & **Redis** running locally (or via Docker)
-
-### Install & Run
+## 🚀 Getting started
 
 ```bash
-# Clone the repo
 git clone https://github.com/looksphishy/looksphishy.git
 cd looksphishy
-
-# Install dependencies
 pnpm install
-
-# Start development servers
 pnpm run dev
 ```
 
-### 📦 Monorepo Structure
-
-```
-looksphishy/
-├── apps/          # 🖥️ Astro frontend & 🔌 NestJS API
-├── libs/          # 📚 Shared packages (types, utils, config)
-├── turbo.json     # ⚙️ Turborepo pipeline config
-└── package.json   # 📋 Root workspace
-```
-
----
-
-## 🧑‍💻 Development
-
-| Command          | Description                     |
-| ---------------- | ------------------------------- |
-| `pnpm run dev`   | 🔥 Start all apps in dev mode  |
-| `pnpm run build` | 📦 Build all apps & libs       |
-| `pnpm run test`  | 🧪 Run tests across workspace  |
-
----
+You'll need Node.js 20+, pnpm, PostgreSQL, and Redis.
 
 ## 🤝 Contributing
 
-We'd love your help making the internet a little safer! 💪
-
-1. Fork the repo
-2. Create your branch (`git checkout -b feature/amazing-thing`)
-3. Commit your changes
-4. Open a Pull Request
-
-Please keep in mind that this project deals with phishing URLs — **never log or display raw malicious URLs** in plain text. Always mask or hash them. 🔒
-
----
+We could use your help. Fork it, branch it, PR it.
 
 ## 📄 License
 
-Open source — made with ❤️ to fight phishing.
+Open source, non-profit. Made to fight phishing.
 
 ---
 
 <p align="center">
-  <strong>🐟 If it looks phishy, report it.</strong>
+  🐟 If it looks phishy, report it.
 </p>
