@@ -1,0 +1,47 @@
+---
+import "../styles/globals.css"
+
+interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {description && <meta name="description" content={description} />}
+    <title>{title} — LooksPhishy</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen font-sans antialiased bg-background text-foreground">
+    <header class="border-b border-border px-6 py-4">
+      <div class="mx-auto flex max-w-3xl items-center gap-2">
+        <a href="/" class="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <span>🐟</span>
+          <span>LooksPhishy</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="px-6 py-12">
+      <article class="prose prose-neutral mx-auto max-w-3xl">
+        <slot />
+      </article>
+    </main>
+
+    <footer class="border-t border-border px-6 py-8">
+      <div class="mx-auto flex max-w-3xl items-center justify-between text-sm text-muted-foreground">
+        <div class="flex items-center gap-2">
+          <span>🐟</span>
+          <span>LooksPhishy</span>
+        </div>
+        <a href="https://github.com/looksphishy/looksphishy" class="transition-colors hover:text-foreground">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>

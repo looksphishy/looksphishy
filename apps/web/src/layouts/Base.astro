@@ -1,0 +1,24 @@
+---
+import "../styles/globals.css"
+
+interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description = "Report a phishing URL once. We relay it to Google Safe Browsing, Cloudflare, and other security providers on your behalf." } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen font-sans antialiased">
+    <slot />
+  </body>
+</html>
