@@ -45,15 +45,15 @@ export function ReportForm() {
 				<p className="mt-3 text-lg font-semibold text-white">
 					Got it. We'll take it from here.
 				</p>
-				<p className="mt-2 text-sm text-teal-200/60">
+				<p className="mt-2 text-sm text-sky-200/60">
 					Your report is being verified and relayed to security providers.
 				</p>
-				<p className="mt-3 font-mono text-xs text-teal-200/40">
+				<p className="mt-3 font-mono text-xs text-sky-200/40">
 					Report ID: {result.id}
 				</p>
 				<button
 					type="button"
-					className="mt-6 text-sm font-medium text-teal-300 underline underline-offset-4 hover:no-underline"
+					className="mt-6 text-sm font-medium text-sky-300 underline underline-offset-4 hover:no-underline"
 					onClick={() => {
 						setUrl("");
 						setEmail("");
@@ -75,7 +75,7 @@ export function ReportForm() {
 				<h3 className="text-base font-semibold text-white">
 					Report a phishing URL
 				</h3>
-				<p className="mt-1 text-sm text-teal-200/50">
+				<p className="mt-1 text-sm text-sky-200/50">
 					We'll verify it and relay to all major providers.
 				</p>
 			</div>
@@ -84,7 +84,7 @@ export function ReportForm() {
 				<div>
 					<label
 						htmlFor="url"
-						className="mb-1.5 block text-xs font-medium text-teal-200/70"
+						className="mb-1.5 block text-xs font-medium text-sky-200/70"
 					>
 						Suspicious URL
 					</label>
@@ -95,16 +95,16 @@ export function ReportForm() {
 						value={url}
 						onChange={(e) => setUrl(e.target.value)}
 						placeholder="https://example-phishing-site.com"
-						className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-teal-400/50 focus:ring-1 focus:ring-teal-400/25"
+						className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-sky-400/50 focus:ring-1 focus:ring-sky-400/25"
 					/>
 				</div>
 
 				<div>
 					<label
 						htmlFor="email"
-						className="mb-1.5 block text-xs font-medium text-teal-200/70"
+						className="mb-1.5 block text-xs font-medium text-sky-200/70"
 					>
-						Your email <span className="text-teal-200/30">(optional)</span>
+						Your email <span className="text-sky-200/30">(optional)</span>
 					</label>
 					<input
 						id="email"
@@ -112,7 +112,7 @@ export function ReportForm() {
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 						placeholder="you@example.com"
-						className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-teal-400/50 focus:ring-1 focus:ring-teal-400/25"
+						className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-sky-400/50 focus:ring-1 focus:ring-sky-400/25"
 					/>
 				</div>
 
@@ -131,13 +131,13 @@ export function ReportForm() {
 				<Button
 					type="submit"
 					disabled={!token || submitting}
-					className="!h-11 !w-full !rounded-lg !bg-teal-400 !text-base !font-semibold !text-gray-950 hover:!bg-teal-300 disabled:!opacity-50"
+					className="!h-11 !w-full !rounded-lg !bg-sky-400 !text-base !font-semibold !text-gray-950 hover:!bg-sky-300 disabled:!opacity-50"
 				>
 					{submitting ? "Submitting..." : "Report this URL"}
 				</Button>
 			</form>
 
-			<p className="mt-4 text-center text-xs text-teal-200/30">
+			<p className="mt-4 text-center text-xs text-sky-200/30">
 				No account needed. We don't track you.
 			</p>
 		</div>
