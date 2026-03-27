@@ -1,8 +1,8 @@
 {
 	"name": "looksphishy-web",
 	"main": "./dist/_worker.js/index.js",
-	"compatibility_date": "2025-04-01",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_date": "2026-03-27",
+	"compatibility_flags": ["nodejs_compat_v2", "global_fetch_strictly_public"],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist"
