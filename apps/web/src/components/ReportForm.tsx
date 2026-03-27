@@ -1,23 +1,44 @@
 import { useState, useRef } from "react";
 import { Button } from "@looksphishy/ui";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { trpc } from "../lib/trpc";
 
 const TURNSTILE_SITE_KEY =
 	import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
 export function ReportForm() {
 	const [url, setUrl] = useState("");
-	const [submitted, setSubmitted] = useState(false);
+	const [email, setEmail] = useState("");
 	const [token, setToken] = useState<string | null>(null);
+	const [submitting, setSubmitting] = useState(false);
+	const [result, setResult] = useState<{ id: string; status: string } | null>(null);
+	const [error, setError] = useState<string | null>(null);
 	const turnstileRef = useRef<TurnstileInstance>(null);
 
-	function handleSubmit(e: React.FormEvent) {
+	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
 		if (!url.trim() || !token) return;
-		setSubmitted(true);
+
+		setSubmitting(true);
+		setError(null);
+
+		try {
+			const report = await trpc.report.submit.mutate({
+				url: url.trim(),
+				email: email.trim() || undefined,
+				turnstileToken: token,
+			});
+			setResult(report);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Something went wrong");
+			turnstileRef.current?.reset();
+			setToken(null);
+		} finally {
+			setSubmitting(false);
+		}
 	}
 
-	if (submitted) {
+	if (result) {
 		return (
 			<div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-sm">
 				<div className="text-4xl">🐟</div>
@@ -27,13 +48,18 @@ export function ReportForm() {
 				<p className="mt-2 text-sm text-teal-200/60">
 					Your report is being verified and relayed to security providers.
 				</p>
+				<p className="mt-3 font-mono text-xs text-teal-200/40">
+					Report ID: {result.id}
+				</p>
 				<button
 					type="button"
 					className="mt-6 text-sm font-medium text-teal-300 underline underline-offset-4 hover:no-underline"
 					onClick={() => {
 						setUrl("");
+						setEmail("");
 						setToken(null);
-						setSubmitted(false);
+						setResult(null);
+						setError(null);
 						turnstileRef.current?.reset();
 					}}
 				>
@@ -83,6 +109,8 @@ export function ReportForm() {
 					<input
 						id="email"
 						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
 						placeholder="you@example.com"
 						className="h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/25 outline-none transition-colors focus:border-teal-400/50 focus:ring-1 focus:ring-teal-400/25"
 					/>
@@ -96,12 +124,16 @@ export function ReportForm() {
 					options={{ theme: "dark", size: "flexible" }}
 				/>
 
+				{error && (
+					<p className="text-sm text-red-400">{error}</p>
+				)}
+
 				<Button
 					type="submit"
-					disabled={!token}
+					disabled={!token || submitting}
 					className="!h-11 !w-full !rounded-lg !bg-teal-400 !text-base !font-semibold !text-gray-950 hover:!bg-teal-300 disabled:!opacity-50"
 				>
-					Report this URL
+					{submitting ? "Submitting..." : "Report this URL"}
 				</Button>
 			</form>
 

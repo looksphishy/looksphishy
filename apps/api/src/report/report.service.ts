@@ -8,7 +8,6 @@ import type { ReportInput, ReportSource } from "@looksphishy/shared";
 import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
 import { hashUrl, maskUrl } from "../common/url-safety.js";
-import { encryptUrl } from "../common/crypto.js";
 import { env } from "../config/env.js";
 
 @Injectable()
@@ -49,13 +48,11 @@ export class ReportService {
 			};
 		}
 
-		const urlEncrypted = encryptUrl(input.url, env().URL_ENCRYPTION_KEY);
-
 		const [report] = await this.db
 			.insert(schema.reports)
 			.values({
+				url: input.url,
 				urlHash,
-				urlEncrypted,
 				reporterEmail: input.email ?? null,
 				source,
 				turnstileVerified: !options?.skipTurnstile,

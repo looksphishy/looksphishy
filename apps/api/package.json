@@ -10,7 +10,10 @@
 		"dev": "nest start --watch",
 		"build": "nest build",
 		"start": "node dist/main.js",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"db:push": "drizzle-kit push",
+		"db:generate": "drizzle-kit generate",
+		"db:studio": "drizzle-kit studio"
 	},
 	"dependencies": {
 		"@looksphishy/shared": "workspace:*",
@@ -20,6 +23,7 @@
 		"@nestjs/platform-express": "^11.0.0",
 		"@trpc/server": "^11.0.0",
 		"bullmq": "^5.0.0",
+		"dotenv": "^17.3.1",
 		"drizzle-orm": "^0.44.0",
 		"postgres": "^3.4.0",
 		"reflect-metadata": "^0.2.0",

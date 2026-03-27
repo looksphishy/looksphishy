@@ -45,7 +45,8 @@ export class RelayService {
 			(r) =>
 				r.status === "submitted" ||
 				r.status === "accepted" ||
-				r.status === "failed",
+				r.status === "failed" ||
+				r.status === "skipped",
 		);
 
 		if (allDone) {

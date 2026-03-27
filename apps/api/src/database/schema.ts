@@ -12,8 +12,8 @@ export const reports = pgTable(
 	"reports",
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
+		url: text("url").notNull(),
 		urlHash: text("url_hash").notNull(),
-		urlEncrypted: text("url_encrypted").notNull(),
 		reporterEmail: text("reporter_email"),
 		source: text("source", { enum: ["web", "email", "api"] }).notNull(),
 		status: text("status", {
@@ -47,10 +47,10 @@ export const relayResults = pgTable(
 			.notNull()
 			.references(() => reports.id),
 		provider: text("provider", {
-			enum: ["google", "cloudflare", "apwg", "phishtank"],
+			enum: ["google", "cloudflare", "apwg", "phishtank", "registrar"],
 		}).notNull(),
 		status: text("status", {
-			enum: ["pending", "submitted", "accepted", "failed"],
+			enum: ["pending", "submitted", "accepted", "failed", "skipped"],
 		})
 			.notNull()
 			.default("pending"),

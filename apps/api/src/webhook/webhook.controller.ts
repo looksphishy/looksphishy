@@ -8,8 +8,8 @@ import {
 	BadRequestException,
 } from "@nestjs/common";
 import { z } from "zod";
-import type { EmailParserService } from "./email-parser.service.js";
-import type { ReportService } from "../report/report.service.js";
+import { EmailParserService } from "./email-parser.service.js";
+import { ReportService } from "../report/report.service.js";
 import { env } from "../config/env.js";
 import { timingSafeEqual } from "node:crypto";
 

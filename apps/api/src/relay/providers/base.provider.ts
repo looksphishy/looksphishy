@@ -1,3 +1,5 @@
+import type { DomainIntel } from "../../domain-intel/domain-intel.service.js";
+
 export interface RelaySubmissionResult {
 	success: boolean;
 	response?: unknown;
@@ -5,5 +7,14 @@ export interface RelaySubmissionResult {
 
 export abstract class BaseRelayProvider {
 	abstract readonly name: string;
-	abstract submitReport(url: string): Promise<RelaySubmissionResult>;
+
+	/** Return false to skip this provider for the given domain. Defaults to true. */
+	shouldRelay(_intel: DomainIntel): boolean {
+		return true;
+	}
+
+	abstract submitReport(
+		url: string,
+		intel: DomainIntel,
+	): Promise<RelaySubmissionResult>;
 }

@@ -6,13 +6,13 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { RelayProvider } from "@looksphishy/shared";
 import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
-import { decryptUrl } from "../common/crypto.js";
-import { env } from "../config/env.js";
-import type { RelayService } from "./relay.service.js";
-import type { GoogleProvider } from "./providers/google.provider.js";
-import type { CloudflareProvider } from "./providers/cloudflare.provider.js";
-import type { ApwgProvider } from "./providers/apwg.provider.js";
-import type { PhishtankProvider } from "./providers/phishtank.provider.js";
+import { DomainIntelService } from "../domain-intel/domain-intel.service.js";
+import { RelayService } from "./relay.service.js";
+import { GoogleProvider } from "./providers/google.provider.js";
+import { CloudflareProvider } from "./providers/cloudflare.provider.js";
+import { ApwgProvider } from "./providers/apwg.provider.js";
+import { PhishtankProvider } from "./providers/phishtank.provider.js";
+import { RegistrarProvider } from "./providers/registrar.provider.js";
 import type { BaseRelayProvider } from "./providers/base.provider.js";
 
 @Injectable()
@@ -24,10 +24,12 @@ export class RelayProcessor extends WorkerHost {
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
 		private relayService: RelayService,
+		private domainIntel: DomainIntelService,
 		private google: GoogleProvider,
 		private cloudflare: CloudflareProvider,
 		private apwg: ApwgProvider,
 		private phishtank: PhishtankProvider,
+		private registrar: RegistrarProvider,
 	) {
 		super();
 		this.providers = new Map<string, BaseRelayProvider>([
@@ -35,6 +37,7 @@ export class RelayProcessor extends WorkerHost {
 			["cloudflare", this.cloudflare],
 			["apwg", this.apwg],
 			["phishtank", this.phishtank],
+			["registrar", this.registrar],
 		]);
 	}
 
@@ -57,10 +60,29 @@ export class RelayProcessor extends WorkerHost {
 			return;
 		}
 
-		const url = decryptUrl(report.urlEncrypted, env().URL_ENCRYPTION_KEY);
+		const intel = await this.domainIntel.lookup(report.url);
+
+		if (!provider.shouldRelay(intel)) {
+			this.logger.log(
+				`Skipping ${providerName} for report ${reportId} (not applicable)`,
+			);
+
+			await this.db
+				.update(schema.relayResults)
+				.set({ status: "skipped", attemptedAt: new Date() })
+				.where(
+					and(
+						eq(schema.relayResults.reportId, reportId),
+						eq(schema.relayResults.provider, providerName),
+					),
+				);
+
+			await this.relayService.markRelayComplete(reportId);
+			return;
+		}
 
 		try {
-			const result = await provider.submitReport(url);
+			const result = await provider.submitReport(report.url, intel);
 
 			await this.db
 				.update(schema.relayResults)

@@ -6,6 +6,7 @@ import { GoogleProvider } from "./providers/google.provider.js";
 import { CloudflareProvider } from "./providers/cloudflare.provider.js";
 import { ApwgProvider } from "./providers/apwg.provider.js";
 import { PhishtankProvider } from "./providers/phishtank.provider.js";
+import { RegistrarProvider } from "./providers/registrar.provider.js";
 
 @Module({
 	imports: [BullModule.registerQueue({ name: "relay" })],
@@ -16,6 +17,7 @@ import { PhishtankProvider } from "./providers/phishtank.provider.js";
 		CloudflareProvider,
 		ApwgProvider,
 		PhishtankProvider,
+		RegistrarProvider,
 	],
 	exports: [RelayService],
 })

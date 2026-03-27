@@ -1,8 +1,8 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Logger } from "@nestjs/common";
 import type { Job } from "bullmq";
-import type { VerificationService } from "./verification.service.js";
-import type { RelayService } from "../relay/relay.service.js";
+import { VerificationService } from "./verification.service.js";
+import { RelayService } from "../relay/relay.service.js";
 
 @Processor("verification")
 export class VerificationProcessor extends WorkerHost {

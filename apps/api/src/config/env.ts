@@ -7,7 +7,6 @@ export const envSchema = z.object({
 	CORS_ORIGIN: z.string().default("http://localhost:4321"),
 	TURNSTILE_SECRET_KEY: z.string(),
 	URLSCAN_API_KEY: z.string().default(""),
-	URL_ENCRYPTION_KEY: z.string().min(32),
 	WEBHOOK_SECRET: z.string().min(16),
 });
 

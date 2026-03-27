@@ -4,6 +4,9 @@
 	"sourceRoot": "src",
 	"compilerOptions": {
 		"builder": "tsc",
-		"typeCheck": true
+		"typeCheck": true,
+		"assets": [
+			{ "include": "data/**/*", "watchAssets": true }
+		]
 	}
 }

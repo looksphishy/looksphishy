@@ -3,6 +3,7 @@ export const RELAY_PROVIDERS = [
 	"cloudflare",
 	"apwg",
 	"phishtank",
+	"registrar",
 ] as const;
 export type RelayProvider = (typeof RELAY_PROVIDERS)[number];
 
@@ -21,6 +22,7 @@ export const RELAY_STATUSES = [
 	"submitted",
 	"accepted",
 	"failed",
+	"skipped",
 ] as const;
 export type RelayStatus = (typeof RELAY_STATUSES)[number];
 
