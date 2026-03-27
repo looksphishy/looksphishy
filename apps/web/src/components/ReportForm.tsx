@@ -45,10 +45,10 @@ export function ReportForm() {
 				<p className="mt-3 text-lg font-semibold text-white">
 					Got it. We'll take it from here.
 				</p>
-				<p className="mt-2 text-sm text-sky-200/60">
+				<p className="mt-2 text-sm text-sky-200/80">
 					Your report is being verified and relayed to security providers.
 				</p>
-				<p className="mt-3 font-mono text-xs text-sky-200/40">
+				<p className="mt-3 font-mono text-xs text-sky-200/90">
 					Report ID: {result.id}
 				</p>
 				<button
@@ -75,7 +75,7 @@ export function ReportForm() {
 				<h3 className="text-base font-semibold text-white">
 					Report a phishing URL
 				</h3>
-				<p className="mt-1 text-sm text-sky-200/50">
+				<p className="mt-1 text-sm text-sky-200/80">
 					We'll verify it and relay to all major providers.
 				</p>
 			</div>
@@ -84,7 +84,7 @@ export function ReportForm() {
 				<div>
 					<label
 						htmlFor="url"
-						className="mb-1.5 block text-xs font-medium text-sky-200/70"
+						className="mb-1.5 block text-xs font-medium text-sky-200/90"
 					>
 						Suspicious URL
 					</label>
@@ -102,9 +102,9 @@ export function ReportForm() {
 				<div>
 					<label
 						htmlFor="email"
-						className="mb-1.5 block text-xs font-medium text-sky-200/70"
+						className="mb-1.5 block text-xs font-medium text-sky-200/90"
 					>
-						Your email <span className="text-sky-200/30">(optional)</span>
+						Your email <span className="text-sky-200/60">(optional)</span>
 					</label>
 					<input
 						id="email"
@@ -137,7 +137,7 @@ export function ReportForm() {
 				</Button>
 			</form>
 
-			<p className="mt-4 text-center text-xs text-sky-200/30">
+			<p className="mt-4 text-center text-xs text-sky-200/60">
 				No account needed. We don't track you.
 			</p>
 		</div>
