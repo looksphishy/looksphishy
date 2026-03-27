@@ -28,8 +28,7 @@ jobs:
           PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
-      - run: pnpm exec wrangler deploy
-        working-directory: apps/web
+      - run: pnpm --filter @looksphishy/web deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
