@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
 	integrations: [react(), mdx()],
-	adapter: cloudflare(),
+	adapter: cloudflare({ imageService: "compile" }),
 	vite: {
 		plugins: [tailwindcss()],
 	},
