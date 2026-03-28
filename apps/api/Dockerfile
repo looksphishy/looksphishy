@@ -38,9 +38,9 @@ COPY --from=build /app/libs/shared/dist ./libs/shared/dist
 COPY --from=build /app/libs/shared/package.json ./libs/shared/
 COPY package.json ./
 
-EXPOSE 3001
+EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-  CMD wget -qO- http://localhost:3001/health || exit 1
+  CMD wget -qO- http://localhost:${PORT:-3000}/health || exit 1
 
 CMD ["node", "apps/api/dist/main.js"]
