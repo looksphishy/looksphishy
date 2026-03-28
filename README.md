@@ -27,6 +27,14 @@ pnpm run dev
 
 You'll need Node.js 20+, pnpm, PostgreSQL, and Redis.
 
+## Verification
+
+Before relaying a report, every URL is checked by a verification service to confirm it actually looks like phishing. This protects our API credentials with downstream providers — too many false positives and we'd get banned.
+
+The verification service is **closed source by design**. If attackers could read the detection logic, they'd craft pages to bypass it. The relay infrastructure (this repo) is fully open, but the thing that decides "is this phishing?" is kept private.
+
+Want to run your own? The API contract is documented in [`docs/verification-api.md`](docs/verification-api.md). Implement those two endpoints and point LooksPhishy at your service.
+
 ## Contributing
 
 We could use your help. Fork it, branch it, PR it.
