@@ -41,6 +41,9 @@ importers:
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
+      drizzle-kit:
+        specifier: ^0.31.0
+        version: 0.31.10
       drizzle-orm:
         specifier: ^0.44.0
         version: 0.44.7(@cloudflare/workers-types@4.20260317.1)(postgres@3.4.8)
@@ -69,9 +72,6 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.15
-      drizzle-kit:
-        specifier: ^0.31.0
-        version: 0.31.10
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
