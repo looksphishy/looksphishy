@@ -34,6 +34,8 @@ COPY --from=prod-deps /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=prod-deps /app/libs/shared/node_modules ./libs/shared/node_modules
 COPY --from=build /app/apps/api/dist ./apps/api/dist
 COPY --from=build /app/apps/api/package.json ./apps/api/
+COPY --from=build /app/apps/api/drizzle.config.ts ./apps/api/
+COPY --from=build /app/apps/api/src/database/schema.ts ./apps/api/src/database/
 COPY --from=build /app/libs/shared/dist ./libs/shared/dist
 COPY --from=build /app/libs/shared/package.json ./libs/shared/
 COPY package.json ./
