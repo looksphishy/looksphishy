@@ -2,7 +2,7 @@
 
 **Report once. Protect everyone.**
 
-LooksPhishy is an open-source fan-out relay for phishing reports. You report a phishing URL once, and we send it to Google Safe Browsing, Cloudflare, and other security providers on your behalf.
+You report a phishing URL once, and we send it to Google Safe Browsing, Cloudflare, and other security providers on your behalf.
 
 No more filling out five different forms. No more hoping someone sees your report.
 

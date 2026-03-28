@@ -6,6 +6,7 @@ import { ReportModule } from "./report/report.module.js";
 import { VerificationModule } from "./verification/verification.module.js";
 import { RelayModule } from "./relay/relay.module.js";
 import { WebhookModule } from "./webhook/webhook.module.js";
+import { HealthModule } from "./health/health.module.js";
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { WebhookModule } from "./webhook/webhook.module.js";
 		VerificationModule,
 		RelayModule,
 		WebhookModule,
+		HealthModule,
 	],
 })
 export class AppModule {}

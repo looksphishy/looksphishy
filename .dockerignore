@@ -1,0 +1,10 @@
+node_modules
+.git
+*.md
+apps/web
+apps/email-worker
+libs/ui
+.env
+.env.*
+dist
+.turbo
