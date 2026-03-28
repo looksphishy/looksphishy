@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ..
+      context: .
       dockerfile: apps/api/Dockerfile
     environment:
       - PORT=3001
