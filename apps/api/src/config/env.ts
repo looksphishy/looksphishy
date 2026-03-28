@@ -6,7 +6,6 @@ export const envSchema = z.object({
 	REDIS_URL: z.string(),
 	CORS_ORIGIN: z.string().default("http://localhost:4321"),
 	TURNSTILE_SECRET_KEY: z.string(),
-	URLSCAN_API_KEY: z.string().default(""),
 	WEBHOOK_SECRET: z.string().min(16),
 });
 

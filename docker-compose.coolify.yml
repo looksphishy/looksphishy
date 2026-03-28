@@ -1,4 +1,17 @@
 services:
+  db-migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: build
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-looksphishy}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-looksphishy}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["pnpm", "--filter", "@looksphishy/api", "db:push"]
+    restart: "no"
+
   api:
     build:
       context: .
@@ -9,11 +22,10 @@ services:
       - REDIS_URL=redis://redis:6379
       - CORS_ORIGIN=${CORS_ORIGIN}
       - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
-      - URLSCAN_API_KEY=${URLSCAN_API_KEY:-}
       - WEBHOOK_SECRET=${WEBHOOK_SECRET}
     depends_on:
-      postgres:
-        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     restart: unless-stopped

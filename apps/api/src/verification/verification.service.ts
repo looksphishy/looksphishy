@@ -42,7 +42,6 @@ export class VerificationService {
 			return { isPhishing: false };
 		}
 
-		// TODO: integrate urlscan.io API
 		// For now, mark all non-allowlisted URLs as verified (stub)
 		const isPhishing = true;
 
