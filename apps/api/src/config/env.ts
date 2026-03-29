@@ -7,6 +7,19 @@ export const envSchema = z.object({
 	CORS_ORIGIN: z.string().default("http://localhost:4321"),
 	TURNSTILE_SECRET_KEY: z.string(),
 	WEBHOOK_SECRET: z.string().min(16),
+
+	// Plunk (user-facing transactional email)
+	PLUNK_API_KEY: z.string(),
+
+	// AWS SES (abuse report emails via dedicated subdomain)
+	AWS_REGION: z.string().default("us-east-1"),
+	AWS_ACCESS_KEY_ID: z.string(),
+	AWS_SECRET_ACCESS_KEY: z.string(),
+	SES_FROM_ADDRESS: z.string().email(),
+
+	// Verification service
+	VERIFICATION_API_URL: z.string().url(),
+	VERIFICATION_API_KEY: z.string().min(16),
 });
 
 export type Env = z.infer<typeof envSchema>;

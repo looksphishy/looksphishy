@@ -5,6 +5,14 @@ import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
 import { maskUrl } from "../common/url-safety.js";
 import { AllowlistService } from "./allowlist.service.js";
+import { env } from "@/config/env.js";
+
+interface VerificationResponse {
+	verdict: "phishing" | "suspicious" | "legitimate";
+	confidence: number;
+	reasoning: string;
+	signals: Record<string, unknown>;
+}
 
 @Injectable()
 export class VerificationService {
@@ -42,8 +50,13 @@ export class VerificationService {
 			return { isPhishing: false };
 		}
 
-		// For now, mark all non-allowlisted URLs as verified (stub)
-		const isPhishing = true;
+		const result = await this.callVerificationService(report.url);
+
+		this.logger.log(
+			`Verification result for ${maskUrl(report.url)}: ${result.verdict} (confidence: ${result.confidence})`,
+		);
+
+		const isPhishing = result.verdict === "phishing";
 
 		const newStatus = isPhishing ? "verified" : "rejected";
 		await this.db
@@ -53,5 +66,27 @@ export class VerificationService {
 
 		this.logger.log(`Report ${reportId} marked as ${newStatus}`);
 		return { isPhishing };
+	}
+
+	private async callVerificationService(url: string): Promise<VerificationResponse> {
+		const { VERIFICATION_API_URL, VERIFICATION_API_KEY } = env();
+
+		const response = await fetch(`${VERIFICATION_API_URL}/verify`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": VERIFICATION_API_KEY,
+			},
+			body: JSON.stringify({ url }),
+			signal: AbortSignal.timeout(60_000),
+		});
+
+		if (!response.ok) {
+			throw new Error(
+				`Verification service returned ${response.status}: ${await response.text()}`,
+			);
+		}
+
+		return (await response.json()) as VerificationResponse;
 	}
 }

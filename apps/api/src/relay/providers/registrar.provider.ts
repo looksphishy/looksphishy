@@ -1,12 +1,18 @@
 import { Injectable, Logger } from "@nestjs/common";
 import type { DomainIntel } from "../../domain-intel/domain-intel.service.js";
 import { BaseRelayProvider, type RelaySubmissionResult } from "./base.provider.js";
+import { AbuseMailService } from "../../abuse-mail/abuse-mail.service.js";
 import { maskUrl } from "../../common/url-safety.js";
+import { buildAbuseEmail } from "./registrar-email.js";
 
 @Injectable()
 export class RegistrarProvider extends BaseRelayProvider {
 	readonly name = "registrar";
 	private readonly logger = new Logger(RegistrarProvider.name);
+
+	constructor(private readonly abuseMail: AbuseMailService) {
+		super();
+	}
 
 	shouldRelay(intel: DomainIntel): boolean {
 		return intel.registrarAbuseEmail !== null;
@@ -18,19 +24,22 @@ export class RegistrarProvider extends BaseRelayProvider {
 		}
 
 		this.logger.log(
-			`[stub] Sending abuse report for ${maskUrl(url)} to ${intel.registrar} (${intel.registrarAbuseEmail})`,
+			`Sending abuse report for ${maskUrl(url)} to ${intel.registrar} (${intel.registrarAbuseEmail})`,
 		);
 
-		// TODO: send abuse email via AWS SES
-		// Template should include:
-		// - The phishing URL
-		// - Evidence (verification result)
-		// - Request to suspend/take down the domain
-		// - Contact info for looksphishy.org
+		const { subject, text, html } = buildAbuseEmail(url, intel);
+
+		const messageId = await this.abuseMail.send({
+			to: intel.registrarAbuseEmail,
+			subject,
+			text,
+			html,
+		});
 
 		return {
 			success: true,
 			response: {
+				messageId,
 				registrar: intel.registrar,
 				abuseEmail: intel.registrarAbuseEmail,
 			},
