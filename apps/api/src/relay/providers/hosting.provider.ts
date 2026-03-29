@@ -6,31 +6,31 @@ import { maskUrl } from "../../common/url-safety.js";
 import { buildAbuseEmail } from "./abuse-email.js";
 
 @Injectable()
-export class RegistrarProvider extends BaseRelayProvider {
-	readonly name = "registrar";
-	private readonly logger = new Logger(RegistrarProvider.name);
+export class HostingProvider extends BaseRelayProvider {
+	readonly name = "hosting";
+	private readonly logger = new Logger(HostingProvider.name);
 
 	constructor(private readonly abuseMail: AbuseMailService) {
 		super();
 	}
 
 	shouldRelay(intel: DomainIntel): boolean {
-		return intel.registrarAbuseEmail !== null;
+		return intel.hostingAbuseEmail !== null;
 	}
 
 	async submitReport(url: string, intel: DomainIntel): Promise<RelaySubmissionResult> {
-		if (!intel.registrarAbuseEmail) {
-			return { success: false, response: "No abuse email found" };
+		if (!intel.hostingAbuseEmail) {
+			return { success: false, response: "No hosting abuse email found" };
 		}
 
 		this.logger.log(
-			`Sending abuse report for ${maskUrl(url)} to ${intel.registrar} (${intel.registrarAbuseEmail})`,
+			`Sending abuse report for ${maskUrl(url)} to hosting provider ${intel.hostingProvider} (${intel.hostingAbuseEmail})`,
 		);
 
-		const { subject, text, html } = buildAbuseEmail(url, intel, "registrar");
+		const { subject, text, html } = buildAbuseEmail(url, intel, "hosting");
 
 		const messageId = await this.abuseMail.send({
-			to: intel.registrarAbuseEmail,
+			to: intel.hostingAbuseEmail,
 			subject,
 			text,
 			html,
@@ -40,8 +40,8 @@ export class RegistrarProvider extends BaseRelayProvider {
 			success: true,
 			response: {
 				messageId,
-				registrar: intel.registrar,
-				abuseEmail: intel.registrarAbuseEmail,
+				hostingProvider: intel.hostingProvider,
+				abuseEmail: intel.hostingAbuseEmail,
 			},
 		};
 	}

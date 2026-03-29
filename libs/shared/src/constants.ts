@@ -1,9 +1,10 @@
 export const RELAY_PROVIDERS = [
 	"google",
+	"microsoft",
 	"cloudflare",
 	"apwg",
-	"phishtank",
 	"registrar",
+	"hosting",
 ] as const;
 export type RelayProvider = (typeof RELAY_PROVIDERS)[number];
 

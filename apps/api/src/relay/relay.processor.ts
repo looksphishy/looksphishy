@@ -10,9 +10,10 @@ import { DomainIntelService } from "../domain-intel/domain-intel.service.js";
 import { RelayService } from "./relay.service.js";
 import { GoogleProvider } from "./providers/google.provider.js";
 import { CloudflareProvider } from "./providers/cloudflare.provider.js";
+import { MicrosoftProvider } from "./providers/microsoft.provider.js";
 import { ApwgProvider } from "./providers/apwg.provider.js";
-import { PhishtankProvider } from "./providers/phishtank.provider.js";
 import { RegistrarProvider } from "./providers/registrar.provider.js";
+import { HostingProvider } from "./providers/hosting.provider.js";
 import type { BaseRelayProvider } from "./providers/base.provider.js";
 
 @Injectable()
@@ -26,18 +27,20 @@ export class RelayProcessor extends WorkerHost {
 		private relayService: RelayService,
 		private domainIntel: DomainIntelService,
 		private google: GoogleProvider,
+		private microsoft: MicrosoftProvider,
 		private cloudflare: CloudflareProvider,
 		private apwg: ApwgProvider,
-		private phishtank: PhishtankProvider,
 		private registrar: RegistrarProvider,
+		private hosting: HostingProvider,
 	) {
 		super();
 		this.providers = new Map<string, BaseRelayProvider>([
 			["google", this.google],
+			["microsoft", this.microsoft],
 			["cloudflare", this.cloudflare],
 			["apwg", this.apwg],
-			["phishtank", this.phishtank],
 			["registrar", this.registrar],
+			["hosting", this.hosting],
 		]);
 	}
 

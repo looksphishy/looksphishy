@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { resolve as dnsResolve } from "node:dns/promises";
+import { resolve as dnsResolve, resolve4 } from "node:dns/promises";
 import { maskUrl } from "../common/url-safety.js";
 
 export interface DomainIntel {
@@ -7,6 +7,8 @@ export interface DomainIntel {
 	isCloudflare: boolean;
 	registrar: string | null;
 	registrarAbuseEmail: string | null;
+	hostingProvider: string | null;
+	hostingAbuseEmail: string | null;
 }
 
 @Injectable()
@@ -22,9 +24,10 @@ export class DomainIntelService {
 
 		this.logger.log(`Looking up domain intel for ${maskUrl(url)}`);
 
-		const [isCloudflare, rdap] = await Promise.all([
+		const [isCloudflare, rdap, hosting] = await Promise.all([
 			this.checkCloudflare(domain),
 			this.lookupRdap(domain),
+			this.lookupHosting(domain),
 		]);
 
 		const intel: DomainIntel = {
@@ -32,6 +35,8 @@ export class DomainIntelService {
 			isCloudflare,
 			registrar: rdap.registrar,
 			registrarAbuseEmail: rdap.abuseEmail,
+			hostingProvider: hosting.provider,
+			hostingAbuseEmail: hosting.abuseEmail,
 		};
 
 		this.cache.set(domain, intel);
@@ -108,6 +113,54 @@ export class DomainIntelService {
 		return null;
 	}
 
+	private async lookupHosting(
+		domain: string,
+	): Promise<{ provider: string | null; abuseEmail: string | null }> {
+		try {
+			const ips = await resolve4(domain);
+			if (ips.length === 0) {
+				return { provider: null, abuseEmail: null };
+			}
+
+			const ip = ips[0];
+			const response = await fetch(
+				`https://rdap.org/ip/${ip}`,
+				{ signal: AbortSignal.timeout(10_000) },
+			);
+
+			if (!response.ok) {
+				return { provider: null, abuseEmail: null };
+			}
+
+			const data = (await response.json()) as IpRdapResponse;
+
+			const provider = data.name ?? null;
+			const abuseEmail = this.extractAbuseEmailFromIp(data);
+
+			return { provider, abuseEmail };
+		} catch {
+			this.logger.warn(`Hosting lookup failed for ${domain}`);
+			return { provider: null, abuseEmail: null };
+		}
+	}
+
+	private extractAbuseEmailFromIp(data: IpRdapResponse): string | null {
+		for (const entity of data.entities ?? []) {
+			if (entity.roles?.includes("abuse")) {
+				const email = this.extractEmailFromVcard(entity);
+				if (email) return email;
+			}
+
+			for (const sub of entity.entities ?? []) {
+				if (sub.roles?.includes("abuse")) {
+					const email = this.extractEmailFromVcard(sub);
+					if (email) return email;
+				}
+			}
+		}
+		return null;
+	}
+
 	private extractEmailFromVcard(entity: RdapEntity): string | null {
 		const vcard = entity.vcardArray?.[1];
 		if (!vcard) return null;
@@ -124,5 +177,10 @@ interface RdapEntity {
 }
 
 interface RdapResponse {
+	entities?: RdapEntity[];
+}
+
+interface IpRdapResponse {
+	name?: string;
 	entities?: RdapEntity[];
 }

@@ -17,6 +17,14 @@ export const envSchema = z.object({
 	AWS_SECRET_ACCESS_KEY: z.string(),
 	SES_FROM_ADDRESS: z.string().email(),
 
+	// Google Web Risk
+	GOOGLE_CLOUD_PROJECT_ID: z.string(),
+	GOOGLE_WEB_RISK_API_KEY: z.string(),
+
+	// Cloudflare Abuse Reports
+	CLOUDFLARE_API_TOKEN: z.string(),
+	CLOUDFLARE_ACCOUNT_ID: z.string(),
+
 	// Verification service
 	VERIFICATION_API_URL: z.string().url(),
 	VERIFICATION_API_KEY: z.string().min(16),

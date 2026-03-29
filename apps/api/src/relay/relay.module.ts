@@ -4,9 +4,10 @@ import { RelayService } from "./relay.service.js";
 import { RelayProcessor } from "./relay.processor.js";
 import { GoogleProvider } from "./providers/google.provider.js";
 import { CloudflareProvider } from "./providers/cloudflare.provider.js";
+import { MicrosoftProvider } from "./providers/microsoft.provider.js";
 import { ApwgProvider } from "./providers/apwg.provider.js";
-import { PhishtankProvider } from "./providers/phishtank.provider.js";
 import { RegistrarProvider } from "./providers/registrar.provider.js";
+import { HostingProvider } from "./providers/hosting.provider.js";
 
 @Module({
 	imports: [BullModule.registerQueue({ name: "relay" })],
@@ -14,10 +15,11 @@ import { RegistrarProvider } from "./providers/registrar.provider.js";
 		RelayService,
 		RelayProcessor,
 		GoogleProvider,
+		MicrosoftProvider,
 		CloudflareProvider,
 		ApwgProvider,
-		PhishtankProvider,
 		RegistrarProvider,
+		HostingProvider,
 	],
 	exports: [RelayService],
 })

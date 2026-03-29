@@ -1,25 +1,44 @@
 import type { DomainIntel } from "../../domain-intel/domain-intel.service.js";
 
-interface AbuseEmail {
+export interface AbuseEmailContent {
 	subject: string;
 	text: string;
 	html: string;
 }
 
-export function buildAbuseEmail(url: string, intel: DomainIntel): AbuseEmail {
+export type AbuseRecipientType = "registrar" | "hosting";
+
+export function buildAbuseEmail(
+	url: string,
+	intel: DomainIntel,
+	recipientType: AbuseRecipientType,
+): AbuseEmailContent {
 	const domain = intel.domain;
+	const recipientLabel =
+		recipientType === "registrar"
+			? "a domain registered through"
+			: "infrastructure managed by";
+	const providerName =
+		recipientType === "registrar"
+			? (intel.registrar ?? "Unknown")
+			: (intel.hostingProvider ?? "Unknown");
+	const providerLabel = recipientType === "registrar" ? "Registrar" : "Hosting Provider";
+	const actionRequest =
+		recipientType === "registrar"
+			? "suspending the domain or notifying the registrant, in accordance with your abuse policies and ICANN obligations"
+			: "suspending the hosting account or taking the content offline, in accordance with your acceptable use policy";
 
 	const subject = `[Phishing Report] Malicious domain: ${domain}`;
 
 	const text = `Dear Abuse Team,
 
-We are writing to report a phishing website hosted on a domain registered through your organization.
+We are writing to report a phishing website hosted on ${recipientLabel} your organization.
 
 REPORTED URL
 ${url}
 
 DOMAIN: ${domain}
-REGISTRAR: ${intel.registrar ?? "Unknown"}
+${providerLabel.toUpperCase()}: ${providerName}
 
 DETAILS
 The above URL has been identified as a phishing site designed to deceive users into disclosing sensitive information such as login credentials, financial data, or personal details.
@@ -27,7 +46,7 @@ The above URL has been identified as a phishing site designed to deceive users i
 This report was generated after automated verification confirmed the malicious nature of this URL.
 
 REQUEST
-We respectfully request that you investigate this domain and take appropriate action, which may include suspending the domain or notifying the registrant, in accordance with your abuse policies and ICANN obligations.
+We respectfully request that you investigate this domain and take appropriate action, which may include ${actionRequest}.
 
 ABOUT US
 LooksPhishy.org is an open-source, non-profit phishing report relay service. We aggregate phishing reports from the public and automatically distribute them to the relevant security providers and registrars.
@@ -47,7 +66,7 @@ Thank you for your prompt attention to this matter.`;
   <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 20px 0;">
 
   <p>Dear Abuse Team,</p>
-  <p>We are writing to report a phishing website hosted on a domain registered through your organization.</p>
+  <p>We are writing to report a phishing website hosted on ${recipientLabel} your organization.</p>
 
   <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
     <tr>
@@ -61,8 +80,8 @@ Thank you for your prompt attention to this matter.`;
       <td style="padding: 8px 12px; border: 1px solid #e5e5e5;">${escapeHtml(domain)}</td>
     </tr>
     <tr>
-      <td style="padding: 8px 12px; border: 1px solid #e5e5e5; font-weight: 600;">Registrar</td>
-      <td style="padding: 8px 12px; border: 1px solid #e5e5e5;">${escapeHtml(intel.registrar ?? "Unknown")}</td>
+      <td style="padding: 8px 12px; border: 1px solid #e5e5e5; font-weight: 600;">${escapeHtml(providerLabel)}</td>
+      <td style="padding: 8px 12px; border: 1px solid #e5e5e5;">${escapeHtml(providerName)}</td>
     </tr>
   </table>
 
@@ -71,7 +90,7 @@ Thank you for your prompt attention to this matter.`;
   <p>This report was generated after automated verification confirmed the malicious nature of this URL.</p>
 
   <h3 style="margin-bottom: 8px;">Request</h3>
-  <p>We respectfully request that you investigate this domain and take appropriate action, which may include suspending the domain or notifying the registrant, in accordance with your abuse policies and ICANN obligations.</p>
+  <p>We respectfully request that you investigate this domain and take appropriate action, which may include ${actionRequest}.</p>
 
   <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 20px 0;">
 
