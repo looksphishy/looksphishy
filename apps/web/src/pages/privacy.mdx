@@ -24,7 +24,7 @@ Simon Köck — reachable at privacy@looksphishy.org
 ### When you forward an email to report@looksphishy.org
 
 - **The content of the forwarded email**, including headers, body text, and any URLs contained within it. We extract the URLs, process them, and discard the email content.
-- **Your email address** (the sender address). We use this only to send you a confirmation that the report was received. We do not store it beyond that.
+- **Your email address** (the sender address). We use this to notify you about the outcome of your report.
 
 We do **not** store the original phishing email body after URLs have been extracted.
 
@@ -43,8 +43,8 @@ We do **not** store the original phishing email body after URLs have been extrac
 
 Reported URLs are:
 
-1. **Verified** against threat intelligence sources (such as urlscan.io) to confirm they are malicious.
-2. **Relayed** to security providers including Google Safe Browsing, Cloudflare, APWG, PhishTank, and others. This is the entire purpose of the service.
+1. **Verified** against threat intelligence sources to confirm they are malicious.
+2. **Relayed** to security providers including Google Web Risk, Netcraft, Cloudflare, and domain/hosting abuse contacts. This is the entire purpose of the service.
 3. **Stored** in our database to prevent duplicate reports and to allow us to track the status of each relay.
 
 Reported URLs are shared with third-party security providers by design. That is what this service does. The URLs themselves are suspected phishing sites, not personal data of the reporter.
@@ -54,8 +54,10 @@ Reported URLs are shared with third-party security providers by design. That is 
 | Service | Purpose | Their privacy policy |
 |---|---|---|
 | Cloudflare | Hosting, DNS, email routing, Turnstile | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| AWS SES | Sending confirmation emails | [aws.amazon.com/privacy](https://aws.amazon.com/privacy/) |
-| urlscan.io | URL verification | [urlscan.io/about/privacy](https://urlscan.io/about/privacy/) |
+| AWS SES | Sending abuse reports to registrars and hosting providers | [aws.amazon.com/privacy](https://aws.amazon.com/privacy/) |
+| Plunk | Sending user-facing notification emails | [useplunk.com/legal/privacy](https://useplunk.com/legal/privacy) |
+| Google Web Risk | Submitting confirmed phishing URLs for browser-level blocking | [policies.google.com/privacy](https://policies.google.com/privacy) |
+| Netcraft | Submitting confirmed phishing URLs for takedown | [netcraft.com/privacy](https://www.netcraft.com/privacy/) |
 
 ## Data retention
 
