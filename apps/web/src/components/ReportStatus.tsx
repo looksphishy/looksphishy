@@ -19,8 +19,8 @@ interface ReportData {
 const PROVIDER_INFO: Record<string, { label: string; description: string }> = {
 	google: { label: "Google Web Risk", description: "Chrome, Firefox, Safari, Android" },
 	microsoft: { label: "Microsoft WDSI", description: "Edge, Windows, Outlook" },
+	netcraft: { label: "Netcraft", description: "Phishing takedowns" },
 	cloudflare: { label: "Cloudflare", description: "Cloudflare-proxied sites" },
-	apwg: { label: "APWG eCrime", description: "Industry threat sharing" },
 	registrar: { label: "Domain Registrar", description: "Domain suspension" },
 	hosting: { label: "Hosting Provider", description: "Content takedown" },
 };

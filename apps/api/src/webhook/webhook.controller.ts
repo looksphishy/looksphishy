@@ -47,7 +47,8 @@ export class WebhookController {
 
 		this.logger.log("Inbound email received for processing");
 
-		const urls = this.emailParser.extractUrls(parsed.data);
+		const MAX_URLS_PER_EMAIL = 20;
+		const urls = this.emailParser.extractUrls(parsed.data).slice(0, MAX_URLS_PER_EMAIL);
 
 		if (urls.length === 0) {
 			return { processed: 0 };

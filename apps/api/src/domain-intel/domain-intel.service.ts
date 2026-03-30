@@ -11,16 +11,34 @@ export interface DomainIntel {
 	hostingAbuseEmail: string | null;
 }
 
+const CACHE_MAX_SIZE = 5000;
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+// Simple email format check for RDAP-derived addresses
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function isValidAbuseEmail(email: string | null): email is string {
+	if (!email) return false;
+	if (!EMAIL_RE.test(email)) return false;
+	// Reject obviously internal/bogus addresses
+	const domain = email.split("@")[1].toLowerCase();
+	if (domain === "localhost" || domain.endsWith(".local") || domain.endsWith(".internal")) {
+		return false;
+	}
+	return true;
+}
+
 @Injectable()
 export class DomainIntelService {
 	private readonly logger = new Logger(DomainIntelService.name);
-	private readonly cache = new Map<string, DomainIntel>();
+	private readonly cache = new Map<string, { intel: DomainIntel; expires: number }>();
 
 	async lookup(url: string): Promise<DomainIntel> {
 		const domain = new URL(url).hostname;
 
 		const cached = this.cache.get(domain);
-		if (cached) return cached;
+		if (cached && cached.expires > Date.now()) return cached.intel;
+
+		if (cached) this.cache.delete(domain);
 
 		this.logger.log(`Looking up domain intel for ${maskUrl(url)}`);
 
@@ -34,12 +52,18 @@ export class DomainIntelService {
 			domain,
 			isCloudflare,
 			registrar: rdap.registrar,
-			registrarAbuseEmail: rdap.abuseEmail,
+			registrarAbuseEmail: isValidAbuseEmail(rdap.abuseEmail) ? rdap.abuseEmail : null,
 			hostingProvider: hosting.provider,
-			hostingAbuseEmail: hosting.abuseEmail,
+			hostingAbuseEmail: isValidAbuseEmail(hosting.abuseEmail) ? hosting.abuseEmail : null,
 		};
 
-		this.cache.set(domain, intel);
+		// Evict oldest entries if cache is full
+		if (this.cache.size >= CACHE_MAX_SIZE) {
+			const firstKey = this.cache.keys().next().value!;
+			this.cache.delete(firstKey);
+		}
+
+		this.cache.set(domain, { intel, expires: Date.now() + CACHE_TTL_MS });
 		return intel;
 	}
 

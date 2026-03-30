@@ -15,10 +15,13 @@ export class GoogleProvider extends BaseRelayProvider {
 		const { GOOGLE_CLOUD_PROJECT_ID, GOOGLE_WEB_RISK_API_KEY } = env();
 
 		const response = await fetch(
-			`https://webrisk.googleapis.com/v1/projects/${GOOGLE_CLOUD_PROJECT_ID}/uris:submit?key=${GOOGLE_WEB_RISK_API_KEY}`,
+			`https://webrisk.googleapis.com/v1/projects/${GOOGLE_CLOUD_PROJECT_ID}/uris:submit`,
 			{
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					"X-Goog-Api-Key": GOOGLE_WEB_RISK_API_KEY,
+				},
 				body: JSON.stringify({
 					submission: { uri: url },
 					threatInfo: {

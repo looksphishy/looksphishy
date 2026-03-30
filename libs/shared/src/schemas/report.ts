@@ -2,7 +2,10 @@ import { z } from "zod";
 import { REPORT_STATUSES } from "../constants.js";
 
 export const reportInputSchema = z.object({
-	url: z.string().url(),
+	url: z.string().url().refine(
+		(u) => u.startsWith("http://") || u.startsWith("https://"),
+		{ message: "URL must use http or https" },
+	),
 	email: z.string().email().optional(),
 	turnstileToken: z.string().min(1),
 });

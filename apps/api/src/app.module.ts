@@ -13,7 +13,7 @@ import { HealthModule } from "./health/health.module.js";
 
 @Module({
 	imports: [
-		EventEmitterModule.forRoot(),
+		EventEmitterModule.forRoot({ maxListeners: 100 }),
 		BullModule.forRootAsync({
 			useFactory: () => ({
 				connection: {

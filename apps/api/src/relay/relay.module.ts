@@ -3,9 +3,8 @@ import { BullModule } from "@nestjs/bullmq";
 import { RelayService } from "./relay.service.js";
 import { RelayProcessor } from "./relay.processor.js";
 import { GoogleProvider } from "./providers/google.provider.js";
+import { NetcraftProvider } from "./providers/netcraft.provider.js";
 import { CloudflareProvider } from "./providers/cloudflare.provider.js";
-import { MicrosoftProvider } from "./providers/microsoft.provider.js";
-import { ApwgProvider } from "./providers/apwg.provider.js";
 import { RegistrarProvider } from "./providers/registrar.provider.js";
 import { HostingProvider } from "./providers/hosting.provider.js";
 
@@ -15,9 +14,8 @@ import { HostingProvider } from "./providers/hosting.provider.js";
 		RelayService,
 		RelayProcessor,
 		GoogleProvider,
-		MicrosoftProvider,
+		NetcraftProvider,
 		CloudflareProvider,
-		ApwgProvider,
 		RegistrarProvider,
 		HostingProvider,
 	],

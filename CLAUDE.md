@@ -25,11 +25,10 @@ Reports are fanned out to these providers via BullMQ jobs. Each provider has a `
 | Provider | Target | Gate | Status |
 |---|---|---|---|
 | `google` | Google Web Risk API | always | implemented |
-| `microsoft` | Microsoft WDSI | always | implemented |
+| `netcraft` | Netcraft Report API v3 | always | implemented |
 | `cloudflare` | Cloudflare Abuse Reports API | `isCloudflare` | implemented |
 | `registrar` | Registrar abuse email (RDAP) | `registrarAbuseEmail` exists | implemented (AWS SES) |
 | `hosting` | Hosting provider abuse email (IP RDAP) | `hostingAbuseEmail` exists | implemented (AWS SES) |
-| `apwg` | APWG eCrime Exchange | always | stub (requires $5K membership) |
 
 ## Email Architecture
 - **Plunk** (`EmailModule`): User-facing transactional emails (confirmations, status updates).

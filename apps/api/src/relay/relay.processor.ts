@@ -10,9 +10,8 @@ import * as schema from "../database/schema.js";
 import { DomainIntelService } from "../domain-intel/domain-intel.service.js";
 import { RelayService } from "./relay.service.js";
 import { GoogleProvider } from "./providers/google.provider.js";
+import { NetcraftProvider } from "./providers/netcraft.provider.js";
 import { CloudflareProvider } from "./providers/cloudflare.provider.js";
-import { MicrosoftProvider } from "./providers/microsoft.provider.js";
-import { ApwgProvider } from "./providers/apwg.provider.js";
 import { RegistrarProvider } from "./providers/registrar.provider.js";
 import { HostingProvider } from "./providers/hosting.provider.js";
 import type { BaseRelayProvider } from "./providers/base.provider.js";
@@ -29,18 +28,16 @@ export class RelayProcessor extends WorkerHost {
 		private relayService: RelayService,
 		private domainIntel: DomainIntelService,
 		private google: GoogleProvider,
-		private microsoft: MicrosoftProvider,
+		private netcraft: NetcraftProvider,
 		private cloudflare: CloudflareProvider,
-		private apwg: ApwgProvider,
 		private registrar: RegistrarProvider,
 		private hosting: HostingProvider,
 	) {
 		super();
 		this.providers = new Map<string, BaseRelayProvider>([
 			["google", this.google],
-			["microsoft", this.microsoft],
+			["netcraft", this.netcraft],
 			["cloudflare", this.cloudflare],
-			["apwg", this.apwg],
 			["registrar", this.registrar],
 			["hosting", this.hosting],
 		]);

@@ -47,7 +47,7 @@ export const relayResults = pgTable(
 			.notNull()
 			.references(() => reports.id),
 		provider: text("provider", {
-			enum: ["google", "microsoft", "cloudflare", "apwg", "registrar", "hosting"],
+			enum: ["google", "netcraft", "cloudflare", "registrar", "hosting"],
 		}).notNull(),
 		status: text("status", {
 			enum: ["pending", "submitted", "accepted", "failed", "skipped"],

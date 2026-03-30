@@ -8,7 +8,7 @@ const { id } = Astro.params;
 ---
 
 <Base title={`Report ${id?.slice(0, 8)}... — LooksPhishy`}>
-  <div class="min-h-screen bg-background">
+  <div class="min-h-screen flex flex-col bg-background">
     <header class="border-b border-border px-6 py-4">
       <div class="mx-auto flex max-w-6xl items-center justify-between">
         <a href="/" class="flex items-center gap-2 text-foreground transition-opacity hover:opacity-80">
@@ -27,7 +27,7 @@ const { id } = Astro.params;
       </div>
     </header>
 
-    <main class="mx-auto max-w-2xl px-6 py-16">
+    <main class="flex-1 mx-auto max-w-2xl px-6 py-16">
       <a
         href="/"
         class="mb-8 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"

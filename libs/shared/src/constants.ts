@@ -1,8 +1,7 @@
 export const RELAY_PROVIDERS = [
 	"google",
-	"microsoft",
+	"netcraft",
 	"cloudflare",
-	"apwg",
 	"registrar",
 	"hosting",
 ] as const;

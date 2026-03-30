@@ -87,9 +87,9 @@ export class VerificationService {
 		});
 
 		if (!response.ok) {
-			throw new Error(
-				`Verification service returned ${response.status}: ${await response.text()}`,
-			);
+			const body = await response.text();
+			this.logger.debug(`Verification service error: ${body}`);
+			throw new Error(`Verification service returned ${response.status}`);
 		}
 
 		return (await response.json()) as VerificationResponse;
