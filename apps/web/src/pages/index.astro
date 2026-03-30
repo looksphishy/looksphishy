@@ -133,11 +133,11 @@ import { ReportForm } from "../components/ReportForm";
         <!-- Destination nodes -->
         <div class="grid w-full max-w-3xl grid-cols-3 gap-3 sm:grid-cols-5">
           {[
-            { name: "Google", sub: "Safe Browsing" },
-            { name: "Cloudflare", sub: "Radar" },
-            { name: "APWG", sub: "eCrime" },
-            { name: "PhishTank", sub: "Community" },
-            { name: "More...", sub: "Growing list" },
+            { name: "Google", sub: "Web Risk" },
+            { name: "Netcraft", sub: "Takedowns" },
+            { name: "Cloudflare", sub: "Abuse Reports" },
+            { name: "Registrar", sub: "Domain abuse" },
+            { name: "Hosting", sub: "Content abuse" },
           ].map((provider) => (
             <div class="flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 text-center">
               <div class="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
@@ -154,32 +154,125 @@ import { ReportForm } from "../components/ReportForm";
     </div>
   </section>
 
-  <!-- ===== FEATURES ===== -->
-  <section class="bg-secondary/30 px-6 py-24">
-    <div class="mx-auto grid max-w-5xl gap-6 sm:grid-cols-3">
-      {[
-        {
-          icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>`,
-          title: "Auto-verified",
-          desc: "Every URL is checked against threat intelligence feeds before relay. No false positives wasting provider time.",
-        },
-        {
-          icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>`,
-          title: "Instant relay",
-          desc: "Reports are queued and dispatched in seconds. Background workers handle the fan-out so nothing blocks or drops.",
-        },
-        {
-          icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>`,
-          title: "Fully open source",
-          desc: "Every line of code is public. Audit it, fork it, self-host it. This is a community tool, not a product.",
-        },
-      ].map((feature) => (
-        <div class="rounded-2xl border border-border bg-card p-8">
-          <div class="mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary" set:html={feature.icon} />
-          <h3 class="text-lg font-semibold text-foreground">{feature.title}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.desc}</p>
+  <!-- ===== THE PROBLEM ===== -->
+  <section class="bg-background px-6 py-24">
+    <div class="mx-auto max-w-5xl">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-primary">The problem</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          Nobody's connecting the dots.
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
+          When you report a phishing site to Google, Cloudflare has no idea. Neither does the registrar. The site stays up on every platform you didn't report to.
+        </p>
+      </div>
+
+      <div class="mx-auto mt-16 grid max-w-4xl gap-6 sm:grid-cols-2">
+        <div class="rounded-2xl border border-red-500/20 bg-red-500/5 p-6">
+          <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-red-500/10 text-red-500">
+            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-foreground">Without LooksPhishy</h3>
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              Fill out Google's report form
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              Find the registrar via WHOIS, email them
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              Look up the hosting provider, email them too
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              Hope you didn't miss anyone
+            </li>
+          </ul>
         </div>
-      ))}
+
+        <div class="rounded-2xl border border-green-500/20 bg-green-500/5 p-6">
+          <div class="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-green-500/10 text-green-500">
+            <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-foreground">With LooksPhishy</h3>
+          <ul class="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Paste the URL. Done.
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Automatically verified
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Relayed to 5 providers simultaneously
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="mt-0.5 size-4 shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+              Track the status in real time
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHERE REPORTS GO ===== -->
+  <section class="bg-secondary/30 px-6 py-24">
+    <div class="mx-auto max-w-5xl">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-primary">Coverage</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          Where your report goes
+        </h2>
+        <p class="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">
+          Each report triggers multiple actions across different layers of the internet's security infrastructure.
+        </p>
+      </div>
+
+      <div class="mx-auto mt-12 grid max-w-4xl gap-4 sm:grid-cols-2">
+        {[
+          {
+            icon: `<svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>`,
+            title: "Browser blocking",
+            desc: "Google Web Risk flags the URL in Chrome, Firefox, Safari, and Android. 4+ billion devices protected.",
+            provider: "Google Web Risk",
+          },
+          {
+            icon: `<svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" /></svg>`,
+            title: "Site takedown",
+            desc: "Netcraft initiates takedown procedures with direct relationships to hosting providers worldwide.",
+            provider: "Netcraft",
+          },
+          {
+            icon: `<svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" /></svg>`,
+            title: "CDN reporting",
+            desc: "If the site is behind Cloudflare, the abuse report goes directly to their trust and safety team.",
+            provider: "Cloudflare",
+          },
+          {
+            icon: `<svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>`,
+            title: "Abuse emails",
+            desc: "Automated abuse reports to the domain registrar and hosting provider, identified via RDAP lookups.",
+            provider: "Registrar + Hosting",
+          },
+        ].map((item) => (
+          <div class="rounded-2xl border border-border bg-card p-6">
+            <div class="flex items-start gap-4">
+              <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary" set:html={item.icon} />
+              <div>
+                <h3 class="font-semibold text-foreground">{item.title}</h3>
+                <p class="mt-1 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+                <p class="mt-2 text-xs font-medium text-primary">{item.provider}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
@@ -248,7 +341,7 @@ import { ReportForm } from "../components/ReportForm";
             <!-- Status bar -->
             <div class="flex items-center gap-2 rounded-lg bg-sky-400/10 px-3 py-2 text-xs">
               <svg class="size-3.5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
-              <span class="text-sky-300">1 URL extracted &middot; Verified &middot; Relayed to 5 providers</span>
+              <span class="text-sky-300">1 URL extracted &middot; Verified &middot; Relayed to all providers</span>
             </div>
           </div>
         </div>
@@ -258,6 +351,44 @@ import { ReportForm } from "../components/ReportForm";
 
 
 
+
+  <!-- ===== TRUST ===== -->
+  <section class="bg-background px-6 py-24">
+    <div class="mx-auto max-w-5xl">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-primary">Built on trust</p>
+        <h2 class="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          Open source, non-profit, privacy-first.
+        </h2>
+      </div>
+
+      <div class="mx-auto mt-12 grid max-w-4xl gap-6 sm:grid-cols-3">
+        {[
+          {
+            icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" /></svg>`,
+            title: "Open source",
+            desc: "The relay platform is fully open source. Audit how reports are processed and where they go.",
+          },
+          {
+            icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`,
+            title: "No tracking",
+            desc: "No cookies, no analytics, no fingerprinting. We don't track reporters. Your IP isn't stored with reports.",
+          },
+          {
+            icon: `<svg class="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>`,
+            title: "Auto-verified",
+            desc: "Every URL is verified against threat intelligence before any report is sent. No false positives wasting provider time.",
+          },
+        ].map((item) => (
+          <div class="rounded-2xl border border-border bg-card p-8 text-center">
+            <div class="mx-auto mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary" set:html={item.icon} />
+            <h3 class="text-lg font-semibold text-foreground">{item.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
   <!-- ===== CTA ===== -->
   <section class="relative overflow-hidden px-6 py-24">
