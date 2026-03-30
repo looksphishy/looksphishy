@@ -5,7 +5,6 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
 import { maskUrl } from "../common/url-safety.js";
-import { AllowlistService } from "./allowlist.service.js";
 import { env } from "../config/env.js";
 
 interface VerificationResponse {
@@ -21,7 +20,6 @@ export class VerificationService {
 
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
-		private allowlistService: AllowlistService,
 		private events: EventEmitter2,
 	) {}
 
@@ -41,18 +39,6 @@ export class VerificationService {
 		this.events.emit("report.updated", reportId);
 
 		this.logger.log(`Verifying ${maskUrl(report.url)} for report ${reportId}`);
-
-		if (this.allowlistService.isAllowlisted(report.url)) {
-			this.logger.warn(
-				`Report ${reportId} rejected: ${maskUrl(report.url)} is on the allowlist`,
-			);
-			await this.db
-				.update(schema.reports)
-				.set({ status: "rejected", updatedAt: new Date() })
-				.where(eq(schema.reports.id, reportId));
-			this.events.emit("report.updated", reportId);
-			return { isPhishing: false };
-		}
 
 		const result = await this.callVerificationService(report.url);
 

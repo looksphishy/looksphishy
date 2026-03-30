@@ -88,7 +88,9 @@ export class ReportService {
 
 		return {
 			id: report.id,
+			url: report.url,
 			status: report.status,
+			source: report.source,
 			createdAt: report.createdAt.toISOString(),
 			relayResults: relays.map((r) => ({
 				provider: r.provider,

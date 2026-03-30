@@ -34,7 +34,9 @@ export class EmailParserService {
 
 	private extractUrlsFromText(text: string): string[] {
 		const urlPattern = /https?:\/\/[^\s<>"')\]]+/gi;
-		return text.match(urlPattern) ?? [];
+		return (text.match(urlPattern) ?? []).map((url) =>
+			url.replace(/[.,;:!?)]+$/, ""),
+		);
 	}
 
 	private extractUrlsFromHtml(html: string): string[] {
