@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import type { DomainIntel } from "../../domain-intel/domain-intel.service.js";
 import { BaseRelayProvider, type RelaySubmissionResult } from "./base.provider.js";
 import { maskUrl } from "../../common/url-safety.js";
-import { env } from "@/config/env.js";
+import { env } from "../../config/env.js";
 
 @Injectable()
 export class CloudflareProvider extends BaseRelayProvider {

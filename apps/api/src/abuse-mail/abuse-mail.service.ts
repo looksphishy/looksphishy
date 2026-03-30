@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
-import { env } from "@/config/env.js";
+import { env } from "../config/env.js";
 
 export interface AbuseMailOptions {
 	to: string;

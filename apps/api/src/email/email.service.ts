@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Plunk } from "@plunk/node/dist/lib/Plunk.js";
-import { env } from "@/config/env.js";
+import { env } from "../config/env.js";
 
 export interface SendEmailOptions {
 	to: string;

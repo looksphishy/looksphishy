@@ -5,7 +5,7 @@ import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
 import { maskUrl } from "../common/url-safety.js";
 import { AllowlistService } from "./allowlist.service.js";
-import { env } from "@/config/env.js";
+import { env } from "../config/env.js";
 
 interface VerificationResponse {
 	verdict: "phishing" | "suspicious" | "legitimate";

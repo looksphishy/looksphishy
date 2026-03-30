@@ -37,7 +37,7 @@ Reports are fanned out to these providers via BullMQ jobs. Each provider has a `
 - **Inbound**: Cloudflare Email Workers parse incoming emails and POST to `/api/webhooks/inbound-email`.
 
 ## Code Style & Standards
-- **Imports**: Use absolute paths with `@/` alias.
+- **Imports**: Use relative paths (e.g., `../../config/env.js`). No path aliases — they don't work at runtime since NestJS builds to `dist/` without path rewriting.
 - **Types**: Strict TypeScript. Use Zod schemas for validation that can be shared between tRPC and Drizzle.
 - **Naming**: Use descriptive, "human-first" names (e.g., `isRecentlyReported` instead of `checkUrlStatus`).
 - **Safety**: NEVER log raw phishing URLs to standard output without masking/hashing. Use `maskUrl()` from `@/common/url-safety.js`.
