@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectQueue } from "@nestjs/bullmq";
 import type { Queue } from "bullmq";
 import { eq } from "drizzle-orm";
@@ -14,6 +15,7 @@ export class RelayService {
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
 		@InjectQueue("relay") private relayQueue: Queue,
+		private events: EventEmitter2,
 	) {}
 
 	async enqueueRelays(reportId: string) {
@@ -30,6 +32,8 @@ export class RelayService {
 
 			await this.relayQueue.add("relay", { reportId, provider });
 		}
+
+		this.events.emit("report.updated", reportId);
 
 		this.logger.log(
 			`Enqueued ${RELAY_PROVIDERS.length} relay jobs for report ${reportId}`,
@@ -54,6 +58,7 @@ export class RelayService {
 				.update(schema.reports)
 				.set({ status: "completed", updatedAt: new Date() })
 				.where(eq(schema.reports.id, reportId));
+			this.events.emit("report.updated", reportId);
 
 			this.logger.log(`Report ${reportId} completed all relays`);
 		}

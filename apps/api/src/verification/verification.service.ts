@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { DRIZZLE } from "../database/database.module.js";
@@ -21,6 +22,7 @@ export class VerificationService {
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
 		private allowlistService: AllowlistService,
+		private events: EventEmitter2,
 	) {}
 
 	async verifyUrl(reportId: string): Promise<{ isPhishing: boolean }> {
@@ -36,6 +38,7 @@ export class VerificationService {
 			.update(schema.reports)
 			.set({ status: "verifying", updatedAt: new Date() })
 			.where(eq(schema.reports.id, reportId));
+		this.events.emit("report.updated", reportId);
 
 		this.logger.log(`Verifying ${maskUrl(report.url)} for report ${reportId}`);
 
@@ -47,6 +50,7 @@ export class VerificationService {
 				.update(schema.reports)
 				.set({ status: "rejected", updatedAt: new Date() })
 				.where(eq(schema.reports.id, reportId));
+			this.events.emit("report.updated", reportId);
 			return { isPhishing: false };
 		}
 
@@ -63,6 +67,7 @@ export class VerificationService {
 			.update(schema.reports)
 			.set({ status: newStatus, updatedAt: new Date() })
 			.where(eq(schema.reports.id, reportId));
+		this.events.emit("report.updated", reportId);
 
 		this.logger.log(`Report ${reportId} marked as ${newStatus}`);
 		return { isPhishing };

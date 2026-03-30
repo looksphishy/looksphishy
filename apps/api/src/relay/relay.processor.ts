@@ -1,5 +1,6 @@
 import { Processor, WorkerHost } from "@nestjs/bullmq";
 import { Injectable, Logger, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { Job } from "bullmq";
 import { eq, and } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
@@ -24,6 +25,7 @@ export class RelayProcessor extends WorkerHost {
 
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
+		private events: EventEmitter2,
 		private relayService: RelayService,
 		private domainIntel: DomainIntelService,
 		private google: GoogleProvider,
@@ -79,6 +81,7 @@ export class RelayProcessor extends WorkerHost {
 						eq(schema.relayResults.provider, providerName),
 					),
 				);
+			this.events.emit("report.updated", reportId);
 
 			await this.relayService.markRelayComplete(reportId);
 			return;
@@ -100,6 +103,7 @@ export class RelayProcessor extends WorkerHost {
 						eq(schema.relayResults.provider, providerName),
 					),
 				);
+			this.events.emit("report.updated", reportId);
 		} catch {
 			this.logger.error(
 				`Relay to ${providerName} failed for report ${reportId}`,
@@ -114,6 +118,7 @@ export class RelayProcessor extends WorkerHost {
 						eq(schema.relayResults.provider, providerName),
 					),
 				);
+			this.events.emit("report.updated", reportId);
 		}
 
 		await this.relayService.markRelayComplete(reportId);

@@ -21,6 +21,7 @@
 		"@nestjs/bullmq": "^11.0.0",
 		"@nestjs/common": "^11.0.0",
 		"@nestjs/core": "^11.0.0",
+		"@nestjs/event-emitter": "^3.0.1",
 		"@nestjs/platform-express": "^11.0.0",
 		"@plunk/node": "^3.0.3",
 		"@trpc/server": "^11.0.0",

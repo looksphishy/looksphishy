@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { BullModule } from "@nestjs/bullmq";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { DatabaseModule } from "./database/database.module.js";
 import { DomainIntelModule } from "./domain-intel/domain-intel.module.js";
 import { EmailModule } from "./email/email.module.js";
@@ -12,6 +13,7 @@ import { HealthModule } from "./health/health.module.js";
 
 @Module({
 	imports: [
+		EventEmitterModule.forRoot(),
 		BullModule.forRootAsync({
 			useFactory: () => ({
 				connection: {

@@ -12,7 +12,7 @@ export const envSchema = z.object({
 	PLUNK_API_KEY: z.string(),
 
 	// AWS SES (abuse report emails via dedicated subdomain)
-	AWS_REGION: z.string().default("us-east-1"),
+	AWS_REGION: z.string().default("eu-central-1"),
 	AWS_ACCESS_KEY_ID: z.string(),
 	AWS_SECRET_ACCESS_KEY: z.string(),
 	SES_FROM_ADDRESS: z.string().email(),

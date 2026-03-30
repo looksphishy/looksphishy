@@ -48,12 +48,18 @@ export function ReportForm() {
 				<p className="mt-2 text-sm text-sky-200/80">
 					Your report is being verified and relayed to security providers.
 				</p>
-				<p className="mt-3 font-mono text-xs text-sky-200/90">
-					Report ID: {result.id}
-				</p>
+				<a
+					href={`/report/${result.id}`}
+					className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sky-400/15 px-4 py-2 text-sm font-medium text-sky-300 transition-colors hover:bg-sky-400/25"
+				>
+					Track report status
+					<svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+						<path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+					</svg>
+				</a>
 				<button
 					type="button"
-					className="mt-6 text-sm font-medium text-sky-300 underline underline-offset-4 hover:no-underline"
+					className="mt-4 text-sm font-medium text-sky-300/60 underline underline-offset-4 hover:text-sky-300 hover:no-underline"
 					onClick={() => {
 						setUrl("");
 						setEmail("");
