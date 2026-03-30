@@ -8,8 +8,9 @@ export const envSchema = z.object({
 	TURNSTILE_SECRET_KEY: z.string(),
 	WEBHOOK_SECRET: z.string().min(16),
 
-	// Plunk (user-facing transactional email)
+	// Plunk (user-facing transactional email, self-hosted)
 	PLUNK_API_KEY: z.string(),
+	PLUNK_API_URL: z.string().url(),
 
 	// AWS SES (abuse report emails via dedicated subdomain)
 	AWS_REGION: z.string().default("eu-central-1"),

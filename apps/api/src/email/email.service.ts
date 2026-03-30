@@ -14,7 +14,10 @@ export class EmailService {
 	private readonly plunk: Plunk;
 
 	constructor() {
-		this.plunk = new Plunk(env().PLUNK_API_KEY);
+		const config = env();
+		this.plunk = new Plunk(config.PLUNK_API_KEY, {
+			baseUrl: config.PLUNK_API_URL,
+		});
 	}
 
 	async send(options: SendEmailOptions): Promise<void> {

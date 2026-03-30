@@ -24,6 +24,7 @@ async function bootstrap() {
 	app.enableCors({ origin: env.CORS_ORIGIN });
 
 	const expressApp = app.getHttpAdapter().getInstance();
+	expressApp.set("trust proxy", 1);
 
 	const redisClient = new Redis(env.REDIS_URL);
 
