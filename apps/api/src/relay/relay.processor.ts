@@ -100,9 +100,10 @@ export class RelayProcessor extends WorkerHost {
 						),
 					);
 				this.events.emit("report.updated", reportId);
-			} catch {
+			} catch (err) {
 				this.logger.error(
 					`Relay to ${providerName} failed for report ${reportId}`,
+					err instanceof Error ? err.stack : err,
 				);
 
 				await this.db
