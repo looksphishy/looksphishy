@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InjectQueue } from "@nestjs/bullmq";
 import { TRPCError } from "@trpc/server";
 import type { Queue } from "bullmq";
@@ -17,6 +18,7 @@ export class ReportService {
 	constructor(
 		@Inject(DRIZZLE) private db: PostgresJsDatabase<typeof schema>,
 		@InjectQueue("verification") private verificationQueue: Queue,
+		private events: EventEmitter2,
 	) {}
 
 	async submitReport(
@@ -60,6 +62,7 @@ export class ReportService {
 			.returning();
 
 		await this.verificationQueue.add("verify", { reportId: report.id });
+		this.events.emit("report.submitted", report.id);
 
 		this.logger.log(`Report ${report.id} created, queued for verification`);
 
