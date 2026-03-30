@@ -1,9 +1,11 @@
 import { Controller, Get, Param, Res } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import type { Response } from "express";
 import { ReportService } from "./report.service.js";
 
 @Controller("api/reports")
+@SkipThrottle()
 export class ReportController {
 	constructor(
 		private readonly reportService: ReportService,
