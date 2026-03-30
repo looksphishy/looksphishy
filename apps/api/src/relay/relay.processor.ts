@@ -47,63 +47,79 @@ export class RelayProcessor extends WorkerHost {
 		const { reportId, provider: providerName } = job.data;
 		this.logger.log(`Relaying report ${reportId} to ${providerName}`);
 
-		const provider = this.providers.get(providerName);
-		if (!provider) {
-			this.logger.error(`Unknown provider: ${providerName}`);
-			return;
-		}
-
-		const report = await this.db.query.reports.findFirst({
-			where: eq(schema.reports.id, reportId),
-		});
-
-		if (!report) {
-			this.logger.error(`Report ${reportId} not found`);
-			return;
-		}
-
-		const intel = await this.domainIntel.lookup(report.url);
-
-		if (!provider.shouldRelay(intel)) {
-			this.logger.log(
-				`Skipping ${providerName} for report ${reportId} (not applicable)`,
-			);
-
-			await this.db
-				.update(schema.relayResults)
-				.set({ status: "skipped", attemptedAt: new Date() })
-				.where(
-					and(
-						eq(schema.relayResults.reportId, reportId),
-						eq(schema.relayResults.provider, providerName),
-					),
-				);
-			this.events.emit("report.updated", reportId);
-
-			await this.relayService.markRelayComplete(reportId);
-			return;
-		}
-
 		try {
-			const result = await provider.submitReport(report.url, intel);
+			const provider = this.providers.get(providerName);
+			if (!provider) {
+				this.logger.error(`Unknown provider: ${providerName}`);
+				return;
+			}
 
-			await this.db
-				.update(schema.relayResults)
-				.set({
-					status: result.success ? "submitted" : "failed",
-					responseData: result.response ?? null,
-					attemptedAt: new Date(),
-				})
-				.where(
-					and(
-						eq(schema.relayResults.reportId, reportId),
-						eq(schema.relayResults.provider, providerName),
-					),
+			const report = await this.db.query.reports.findFirst({
+				where: eq(schema.reports.id, reportId),
+			});
+
+			if (!report) {
+				this.logger.error(`Report ${reportId} not found`);
+				return;
+			}
+
+			const intel = await this.domainIntel.lookup(report.url);
+
+			if (!provider.shouldRelay(intel)) {
+				this.logger.log(
+					`Skipping ${providerName} for report ${reportId} (not applicable)`,
 				);
-			this.events.emit("report.updated", reportId);
-		} catch {
+
+				await this.db
+					.update(schema.relayResults)
+					.set({ status: "skipped", attemptedAt: new Date() })
+					.where(
+						and(
+							eq(schema.relayResults.reportId, reportId),
+							eq(schema.relayResults.provider, providerName),
+						),
+					);
+				this.events.emit("report.updated", reportId);
+				return;
+			}
+
+			try {
+				const result = await provider.submitReport(report.url, intel);
+
+				await this.db
+					.update(schema.relayResults)
+					.set({
+						status: result.success ? "submitted" : "failed",
+						responseData: result.response ?? null,
+						attemptedAt: new Date(),
+					})
+					.where(
+						and(
+							eq(schema.relayResults.reportId, reportId),
+							eq(schema.relayResults.provider, providerName),
+						),
+					);
+				this.events.emit("report.updated", reportId);
+			} catch {
+				this.logger.error(
+					`Relay to ${providerName} failed for report ${reportId}`,
+				);
+
+				await this.db
+					.update(schema.relayResults)
+					.set({ status: "failed", attemptedAt: new Date() })
+					.where(
+						and(
+							eq(schema.relayResults.reportId, reportId),
+							eq(schema.relayResults.provider, providerName),
+						),
+					);
+				this.events.emit("report.updated", reportId);
+			}
+		} catch (err) {
 			this.logger.error(
-				`Relay to ${providerName} failed for report ${reportId}`,
+				`Unhandled error in relay for ${providerName} / ${reportId}`,
+				err,
 			);
 
 			await this.db
@@ -116,8 +132,8 @@ export class RelayProcessor extends WorkerHost {
 					),
 				);
 			this.events.emit("report.updated", reportId);
+		} finally {
+			await this.relayService.markRelayComplete(reportId);
 		}
-
-		await this.relayService.markRelayComplete(reportId);
 	}
 }

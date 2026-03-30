@@ -9,7 +9,15 @@ import { RegistrarProvider } from "./providers/registrar.provider.js";
 import { HostingProvider } from "./providers/hosting.provider.js";
 
 @Module({
-	imports: [BullModule.registerQueue({ name: "relay" })],
+	imports: [
+		BullModule.registerQueue({
+			name: "relay",
+			defaultJobOptions: {
+				attempts: 3,
+				backoff: { type: "exponential", delay: 5000 },
+			},
+		}),
+	],
 	providers: [
 		RelayService,
 		RelayProcessor,

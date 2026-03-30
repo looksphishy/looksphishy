@@ -61,7 +61,19 @@ export class ReportService {
 			})
 			.returning();
 
-		await this.verificationQueue.add("verify", { reportId: report.id });
+		try {
+			await this.verificationQueue.add("verify", { reportId: report.id });
+		} catch (err) {
+			this.logger.error(`Failed to enqueue verification for report ${report.id}`, err);
+			await this.db
+				.delete(schema.reports)
+				.where(eq(schema.reports.id, report.id));
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to process report, please try again",
+			});
+		}
+
 		this.events.emit("report.submitted", report.id);
 
 		this.logger.log(`Report ${report.id} created, queued for verification`);
