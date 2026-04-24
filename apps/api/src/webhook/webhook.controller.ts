@@ -7,8 +7,10 @@ import {
 	UnauthorizedException,
 	BadRequestException,
 } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { z } from "zod";
 import { EmailParserService } from "./email-parser.service.js";
+import { InboundEmailProtectionService } from "./inbound-email-protection.service.js";
 import { ReportService } from "../report/report.service.js";
 import { env } from "../config/env.js";
 import { timingSafeEqual } from "node:crypto";
@@ -28,10 +30,12 @@ export class WebhookController {
 
 	constructor(
 		private emailParser: EmailParserService,
+		private inboundEmailProtection: InboundEmailProtectionService,
 		private reportService: ReportService,
 	) {}
 
 	@Post("inbound-email")
+	@SkipThrottle()
 	async handleInboundEmail(
 		@Body() body: unknown,
 		@Headers("x-webhook-secret") secret?: string,
@@ -47,23 +51,35 @@ export class WebhookController {
 
 		this.logger.log("Inbound email received for processing");
 
-		const MAX_URLS_PER_EMAIL = 20;
-		const urls = this.emailParser.extractUrls(parsed.data).slice(0, MAX_URLS_PER_EMAIL);
+		const screening = await this.inboundEmailProtection.screen(parsed.data);
+		if (!screening.allowed) {
+			return { processed: 0, dropped: screening.reason };
+		}
+
+		const urls = this.emailParser.extractUrls(parsed.data);
 
 		if (urls.length === 0) {
 			return { processed: 0 };
 		}
 
-		const results = await Promise.all(
-			urls.map((url) =>
-				this.reportService.submitReport(
-					{ url, email: parsed.data.from, turnstileToken: "" },
-					{ source: "email", skipTurnstile: true },
-				),
-			),
-		);
+		const maxUrlsPerEmail = 1;
+		if (urls.length > maxUrlsPerEmail) {
+			this.logger.warn(
+				`Inbound email from ${parsed.data.from} contained ${urls.length} unique URLs, only the first ${maxUrlsPerEmail} will be processed`,
+			);
+		}
 
-		return { processed: results.length };
+		for (const url of urls.slice(0, maxUrlsPerEmail)) {
+			await this.reportService.submitReport(
+				{ url, email: parsed.data.from, turnstileToken: "" },
+				{ source: "email", skipTurnstile: true },
+			);
+		}
+
+		return {
+			processed: Math.min(urls.length, maxUrlsPerEmail),
+			ignored: Math.max(0, urls.length - maxUrlsPerEmail),
+		};
 	}
 
 	private verifySecret(provided: string): boolean {
