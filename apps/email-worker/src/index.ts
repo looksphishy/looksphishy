@@ -13,6 +13,7 @@ export default {
 
 			const payload = {
 				from: parsed.from?.address ?? message.from,
+				reporterEmail: message.from,
 				to: message.to,
 				subject: parsed.subject ?? "",
 				...(parsed.text && { text: parsed.text }),

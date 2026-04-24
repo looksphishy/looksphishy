@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 
 export interface CloudflareEmailPayload {
 	from: string;
+	reporterEmail?: string;
 	to: string;
 	subject: string;
 	text?: string;

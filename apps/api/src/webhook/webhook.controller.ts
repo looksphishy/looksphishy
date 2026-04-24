@@ -7,7 +7,6 @@ import {
 	UnauthorizedException,
 	BadRequestException,
 } from "@nestjs/common";
-import { SkipThrottle } from "@nestjs/throttler";
 import { z } from "zod";
 import { EmailParserService } from "./email-parser.service.js";
 import { InboundEmailProtectionService } from "./inbound-email-protection.service.js";
@@ -17,6 +16,7 @@ import { timingSafeEqual } from "node:crypto";
 
 const emailPayloadSchema = z.object({
 	from: z.string().email(),
+	reporterEmail: z.string().email().optional(),
 	to: z.string(),
 	subject: z.string(),
 	text: z.string().optional(),
@@ -35,7 +35,6 @@ export class WebhookController {
 	) {}
 
 	@Post("inbound-email")
-	@SkipThrottle()
 	async handleInboundEmail(
 		@Body() body: unknown,
 		@Headers("x-webhook-secret") secret?: string,
@@ -51,6 +50,7 @@ export class WebhookController {
 
 		this.logger.log("Inbound email received for processing");
 
+		const reporterEmail = parsed.data.reporterEmail ?? parsed.data.from;
 		const screening = await this.inboundEmailProtection.screen(parsed.data);
 		if (!screening.allowed) {
 			return { processed: 0, dropped: screening.reason };
@@ -71,7 +71,7 @@ export class WebhookController {
 
 		for (const url of urls.slice(0, maxUrlsPerEmail)) {
 			await this.reportService.submitReport(
-				{ url, email: parsed.data.from, turnstileToken: "" },
+				{ url, email: reporterEmail, turnstileToken: "" },
 				{ source: "email", skipTurnstile: true },
 			);
 		}

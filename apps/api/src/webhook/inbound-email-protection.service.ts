@@ -23,70 +23,91 @@ export class InboundEmailProtectionService implements OnModuleDestroy {
 		lazyConnect: true,
 		maxRetriesPerRequest: 1,
 	});
+	private readonly screenEmailScript = `
+		local dedupeKey = KEYS[1]
+		local globalKey = KEYS[2]
+		local senderKey = KEYS[3]
+		local dedupeTtlMs = tonumber(ARGV[1])
+		local rateWindowMs = tonumber(ARGV[2])
+		local globalLimit = tonumber(ARGV[3])
+		local senderLimit = tonumber(ARGV[4])
+
+		if redis.call("EXISTS", dedupeKey) == 1 then
+			return "duplicate_message"
+		end
+
+		local globalCount = tonumber(redis.call("GET", globalKey) or "0")
+		if globalCount >= globalLimit then
+			return "global_rate_limited"
+		end
+
+		local senderCount = tonumber(redis.call("GET", senderKey) or "0")
+		if senderCount >= senderLimit then
+			return "sender_rate_limited"
+		end
+
+		globalCount = redis.call("INCR", globalKey)
+		if globalCount == 1 then
+			redis.call("PEXPIRE", globalKey, rateWindowMs)
+		end
+
+		senderCount = redis.call("INCR", senderKey)
+		if senderCount == 1 then
+			redis.call("PEXPIRE", senderKey, rateWindowMs)
+		end
+
+		redis.call("SET", dedupeKey, "1", "PX", dedupeTtlMs)
+		return "allowed"
+	`;
 
 	async screen(payload: CloudflareEmailPayload): Promise<InboundEmailScreeningResult> {
-		const sender = this.normalizeEmail(payload.from);
+		const reporterEmail = this.normalizeEmail(payload.reporterEmail ?? payload.from);
 
 		if (this.isAutoSubmitted(payload)) {
-			this.logger.warn(`Dropping automated inbound email from ${sender}`);
+			this.logger.warn(`Dropping automated inbound email from ${reporterEmail}`);
 			return { allowed: false, reason: "auto_submitted" };
 		}
 
 		if (this.hasBulkPrecedence(payload)) {
-			this.logger.warn(`Dropping bulk/list inbound email from ${sender}`);
+			this.logger.warn(`Dropping bulk/list inbound email from ${reporterEmail}`);
 			return { allowed: false, reason: "bulk_precedence" };
 		}
 
-		const messageFingerprint = this.createMessageFingerprint(payload);
-
 		try {
-			const dedupeKey = this.messageKey(messageFingerprint);
-			const globalKey = this.globalKey();
-			const senderKey = this.senderKey(sender);
-			const dedupeResult = await this.redis.set(
-				dedupeKey,
-				"1",
-				"PX",
-				env().INBOUND_EMAIL_MESSAGE_DEDUP_TTL_MS,
-				"NX",
+			const result = String(
+				await this.redis.eval(
+					this.screenEmailScript,
+					3,
+					this.messageKey(this.createMessageFingerprint(payload)),
+					this.globalKey(),
+					this.senderKey(reporterEmail),
+					env().INBOUND_EMAIL_MESSAGE_DEDUP_TTL_MS,
+					env().INBOUND_EMAIL_RATE_LIMIT_WINDOW_MS,
+					env().INBOUND_EMAIL_GLOBAL_RATE_LIMIT_MAX_EMAILS,
+					env().INBOUND_EMAIL_RATE_LIMIT_MAX_EMAILS,
+				),
 			);
 
-			if (dedupeResult !== "OK") {
-				this.logger.warn(`Dropping duplicate inbound email from ${sender}`);
-				return { allowed: false, reason: "duplicate_message" };
+			if (result === "allowed") {
+				return { allowed: true };
 			}
 
-			const globalCount = await this.redis.incr(globalKey);
-			if (globalCount === 1) {
-				await this.redis.pexpire(globalKey, env().INBOUND_EMAIL_RATE_LIMIT_WINDOW_MS);
+			if (this.isDropReason(result)) {
+				this.logDropReason(result, reporterEmail);
+				return { allowed: false, reason: result };
 			}
 
-			if (globalCount > env().INBOUND_EMAIL_GLOBAL_RATE_LIMIT_MAX_EMAILS) {
-				this.logger.warn(
-					`Global inbound email rate limit reached (${globalCount}/${env().INBOUND_EMAIL_GLOBAL_RATE_LIMIT_MAX_EMAILS})`,
-				);
-				return { allowed: false, reason: "global_rate_limited" };
-			}
-
-			const senderCount = await this.redis.incr(senderKey);
-			if (senderCount === 1) {
-				await this.redis.pexpire(senderKey, env().INBOUND_EMAIL_RATE_LIMIT_WINDOW_MS);
-			}
-
-			if (senderCount > env().INBOUND_EMAIL_RATE_LIMIT_MAX_EMAILS) {
-				this.logger.warn(
-					`Rate limiting inbound email from ${sender} (${senderCount}/${env().INBOUND_EMAIL_RATE_LIMIT_MAX_EMAILS})`,
-				);
-				return { allowed: false, reason: "sender_rate_limited" };
-			}
+			this.logger.error(
+				`Unexpected inbound email screening result for ${reporterEmail}: ${result}`,
+			);
+			return { allowed: false, reason: "global_rate_limited" };
 		} catch (error) {
 			this.logger.error(
-				`Inbound email screening failed for ${sender}, continuing without Redis protections`,
+				`Inbound email screening failed for ${reporterEmail}, falling back to HTTP throttling`,
 				error instanceof Error ? error.stack : undefined,
 			);
+			return { allowed: true };
 		}
-
-		return { allowed: true };
 	}
 
 	onModuleDestroy() {
@@ -106,7 +127,13 @@ export class InboundEmailProtectionService implements OnModuleDestroy {
 	private createMessageFingerprint(payload: CloudflareEmailPayload): string {
 		const messageId = this.getHeader(payload.headers, "message-id")?.trim();
 		if (messageId) {
-			return this.hash(`message-id:${messageId.toLowerCase()}`);
+			return this.hash(
+				[
+					"message-id",
+					this.normalizeEmail(payload.reporterEmail ?? payload.from),
+					messageId.toLowerCase(),
+				].join("\n"),
+			);
 		}
 
 		const date = this.getHeader(payload.headers, "date")?.trim().toLowerCase() ?? "";
@@ -115,6 +142,7 @@ export class InboundEmailProtectionService implements OnModuleDestroy {
 		return this.hash(
 			[
 				"fallback",
+				this.normalizeEmail(payload.reporterEmail ?? payload.from),
 				this.normalizeEmail(payload.from),
 				payload.to.trim().toLowerCase(),
 				date,
@@ -126,6 +154,34 @@ export class InboundEmailProtectionService implements OnModuleDestroy {
 
 	private normalizeEmail(value: string): string {
 		return value.trim().toLowerCase();
+	}
+
+	private isDropReason(value: string): value is InboundEmailDropReason {
+		return (
+			value === "duplicate_message" ||
+			value === "global_rate_limited" ||
+			value === "sender_rate_limited" ||
+			value === "auto_submitted" ||
+			value === "bulk_precedence"
+		);
+	}
+
+	private logDropReason(reason: InboundEmailDropReason, reporterEmail: string) {
+		switch (reason) {
+			case "duplicate_message":
+				this.logger.warn(`Dropping duplicate inbound email from ${reporterEmail}`);
+				return;
+			case "global_rate_limited":
+				this.logger.warn(
+					`Global inbound email rate limit reached while processing ${reporterEmail}`,
+				);
+				return;
+			case "sender_rate_limited":
+				this.logger.warn(`Rate limiting inbound email from ${reporterEmail}`);
+				return;
+			default:
+				return;
+		}
 	}
 
 	private getHeader(headers: Record<string, string>, name: string): string | undefined {
