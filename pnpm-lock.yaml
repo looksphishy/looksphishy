@@ -59,6 +59,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.0
         version: 0.44.7(@cloudflare/workers-types@4.20260317.1)(postgres@3.4.8)
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       express-rate-limit:
         specifier: ^8.3.1
         version: 8.3.1(express@5.2.1)
