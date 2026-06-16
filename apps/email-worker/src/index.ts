@@ -10,10 +10,11 @@ export default {
 		try {
 			const rawEmail = await new Response(message.raw).arrayBuffer();
 			const parsed = await new PostalMime().parse(rawEmail);
+			const visibleFrom = parsed.from?.address ?? message.from;
 
 			const payload = {
-				from: parsed.from?.address ?? message.from,
-				reporterEmail: message.from,
+				from: visibleFrom,
+				reporterEmail: visibleFrom,
 				to: message.to,
 				subject: parsed.subject ?? "",
 				...(parsed.text && { text: parsed.text }),
