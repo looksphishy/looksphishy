@@ -53,7 +53,14 @@ export const relayResults = pgTable(
 			enum: ["google", "netcraft", "cloudflare", "registrar", "hosting"],
 		}).notNull(),
 		status: text("status", {
-			enum: ["pending", "submitted", "accepted", "failed", "skipped"],
+			enum: [
+				"pending",
+				"submitted",
+				"accepted",
+				"failed",
+				"skipped",
+				"quota_exceeded",
+			],
 		})
 			.notNull()
 			.default("pending"),

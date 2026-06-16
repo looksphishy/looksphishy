@@ -66,6 +66,14 @@ function RelayStatusIcon({ status }: { status: string }) {
 					</svg>
 				</div>
 			);
+		case "quota_exceeded":
+			return (
+				<div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+					<svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+						<path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+					</svg>
+				</div>
+			);
 		default:
 			return (
 				<div className="flex size-8 items-center justify-center rounded-lg bg-zinc-500/5">
@@ -82,6 +90,7 @@ function relayStatusLabel(status: string): string {
 		case "accepted": return "Accepted";
 		case "failed": return "Failed";
 		case "skipped": return "Skipped";
+		case "quota_exceeded": return "Quota exceeded";
 		default: return status;
 	}
 }
@@ -297,38 +306,56 @@ export function ReportStatus({ reportId }: { reportId: string }) {
 								label: relay.provider,
 								description: "",
 							};
+							const isQuotaExceeded = relay.provider === "google" && relay.status === "quota_exceeded";
 							return (
 								<div
 									key={relay.provider}
-									className="flex items-center justify-between px-5 py-3.5"
+									className="px-5 py-3.5"
 								>
-									<div className="flex items-center gap-3">
-										<RelayStatusIcon status={relay.status} />
-										<div>
-											<p className="text-sm font-medium text-foreground">
-												{info.label}
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<RelayStatusIcon status={relay.status} />
+											<div>
+												<p className="text-sm font-medium text-foreground">
+													{info.label}
+												</p>
+												<p className="text-xs text-muted-foreground">
+													{info.description}
+												</p>
+											</div>
+										</div>
+										<div className="text-right">
+											<p className={`text-xs font-medium ${
+												relay.status === "submitted" || relay.status === "accepted"
+													? "text-green-500"
+													: relay.status === "failed"
+														? "text-red-500"
+														: relay.status === "quota_exceeded"
+															? "text-amber-500"
+															: "text-muted-foreground"
+											}`}>
+												{relayStatusLabel(relay.status)}
 											</p>
-											<p className="text-xs text-muted-foreground">
-												{info.description}
-											</p>
+											{relay.attemptedAt && (
+												<p className="text-[10px] text-muted-foreground">
+													{new Date(relay.attemptedAt).toLocaleTimeString()}
+												</p>
+											)}
 										</div>
 									</div>
-									<div className="text-right">
-										<p className={`text-xs font-medium ${
-											relay.status === "submitted" || relay.status === "accepted"
-												? "text-green-500"
-												: relay.status === "failed"
-													? "text-red-500"
-													: "text-muted-foreground"
-										}`}>
-											{relayStatusLabel(relay.status)}
-										</p>
-										{relay.attemptedAt && (
-											<p className="text-[10px] text-muted-foreground">
-												{new Date(relay.attemptedAt).toLocaleTimeString()}
-											</p>
-										)}
-									</div>
+									{isQuotaExceeded && (
+										<a
+											href={`https://safebrowsing.google.com/safebrowsing/report_phish/?url=${encodeURIComponent(report.url)}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="mt-2.5 flex items-center justify-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs font-medium text-amber-500 transition-colors hover:bg-amber-500/10"
+										>
+											<svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+												<path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+											</svg>
+											Report manually to Google Safe Browsing
+										</a>
+									)}
 								</div>
 							);
 						})}

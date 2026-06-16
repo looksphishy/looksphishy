@@ -23,6 +23,7 @@ export const RELAY_STATUSES = [
 	"accepted",
 	"failed",
 	"skipped",
+	"quota_exceeded",
 ] as const;
 export type RelayStatus = (typeof RELAY_STATUSES)[number];
 

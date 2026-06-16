@@ -3,6 +3,7 @@ import type { DomainIntel } from "../../domain-intel/domain-intel.service.js";
 export interface RelaySubmissionResult {
 	success: boolean;
 	response?: unknown;
+	quotaExceeded?: boolean;
 }
 
 export abstract class BaseRelayProvider {

@@ -25,6 +25,7 @@ export const envSchema = z.object({
 	// Google Web Risk
 	GOOGLE_CLOUD_PROJECT_ID: z.string(),
 	GOOGLE_WEB_RISK_API_KEY: z.string(),
+	GOOGLE_SERVICE_ACCOUNT_KEY: z.string(),
 
 	// Cloudflare Abuse Reports
 	CLOUDFLARE_API_TOKEN: z.string(),

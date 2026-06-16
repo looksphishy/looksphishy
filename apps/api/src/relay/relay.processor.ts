@@ -87,12 +87,18 @@ export class RelayProcessor extends WorkerHost {
 			}
 
 			try {
-				const result = await provider.submitReport(report.url, intel);
+				const result = await provider.submitReport(targetUrl, intel);
+
+				const status = result.quotaExceeded
+					? ("quota_exceeded" as const)
+					: result.success
+						? "submitted"
+						: "failed";
 
 				await this.db
 					.update(schema.relayResults)
 					.set({
-						status: result.success ? "submitted" : "failed",
+						status,
 						responseData: result.response ?? null,
 						attemptedAt: new Date(),
 					})
