@@ -1,15 +1,15 @@
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import type { ReportInput, ReportSource } from "@looksphishy/shared";
 import { InjectQueue } from "@nestjs/bullmq";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { TRPCError } from "@trpc/server";
 import type { Queue } from "bullmq";
-import { eq, and, gt } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ReportInput, ReportSource } from "@looksphishy/shared";
-import { DRIZZLE } from "../database/database.module.js";
-import * as schema from "../database/schema.js";
 import { hashUrl, maskUrl } from "../common/url-safety.js";
 import { env } from "../config/env.js";
+import { DRIZZLE } from "../database/database.module.js";
+import * as schema from "../database/schema.js";
 
 @Injectable()
 export class ReportService {
@@ -64,7 +64,10 @@ export class ReportService {
 		try {
 			await this.verificationQueue.add("verify", { reportId: report.id });
 		} catch (err) {
-			this.logger.error(`Failed to enqueue verification for report ${report.id}`, err);
+			this.logger.error(
+				`Failed to enqueue verification for report ${report.id}`,
+				err,
+			);
 			await this.db
 				.delete(schema.reports)
 				.where(eq(schema.reports.id, report.id));
@@ -104,6 +107,7 @@ export class ReportService {
 		return {
 			id: report.id,
 			url: report.url,
+			finalUrl: report.finalUrl,
 			status: report.status,
 			source: report.source,
 			createdAt: report.createdAt.toISOString(),

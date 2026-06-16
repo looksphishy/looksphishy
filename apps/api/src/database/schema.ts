@@ -1,11 +1,11 @@
 import {
-	pgTable,
-	uuid,
-	text,
 	boolean,
-	timestamp,
-	jsonb,
 	index,
+	jsonb,
+	pgTable,
+	text,
+	timestamp,
+	uuid,
 } from "drizzle-orm/pg-core";
 
 export const reports = pgTable(
@@ -13,6 +13,9 @@ export const reports = pgTable(
 	{
 		id: uuid("id").primaryKey().defaultRandom(),
 		url: text("url").notNull(),
+		// Destination after following redirects/forwarders (e.g. share.google links).
+		// Null until verification resolves it; falls back to `url` downstream.
+		finalUrl: text("final_url"),
 		urlHash: text("url_hash").notNull(),
 		reporterEmail: text("reporter_email"),
 		source: text("source", { enum: ["web", "email", "api"] }).notNull(),

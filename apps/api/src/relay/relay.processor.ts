@@ -1,20 +1,20 @@
-import { Processor, WorkerHost } from "@nestjs/bullmq";
-import { Injectable, Logger, Inject } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import type { Job } from "bullmq";
-import { eq, and } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { RelayProvider } from "@looksphishy/shared";
+import { Processor, WorkerHost } from "@nestjs/bullmq";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
+import type { Job } from "bullmq";
+import { and, eq } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { DRIZZLE } from "../database/database.module.js";
 import * as schema from "../database/schema.js";
-import { DomainIntelService } from "../domain-intel/domain-intel.service.js";
-import { RelayService } from "./relay.service.js";
-import { GoogleProvider } from "./providers/google.provider.js";
-import { NetcraftProvider } from "./providers/netcraft.provider.js";
-import { CloudflareProvider } from "./providers/cloudflare.provider.js";
-import { RegistrarProvider } from "./providers/registrar.provider.js";
-import { HostingProvider } from "./providers/hosting.provider.js";
+import type { DomainIntelService } from "../domain-intel/domain-intel.service.js";
 import type { BaseRelayProvider } from "./providers/base.provider.js";
+import type { CloudflareProvider } from "./providers/cloudflare.provider.js";
+import type { GoogleProvider } from "./providers/google.provider.js";
+import type { HostingProvider } from "./providers/hosting.provider.js";
+import type { NetcraftProvider } from "./providers/netcraft.provider.js";
+import type { RegistrarProvider } from "./providers/registrar.provider.js";
+import type { RelayService } from "./relay.service.js";
 
 @Injectable()
 @Processor("relay")
@@ -63,7 +63,10 @@ export class RelayProcessor extends WorkerHost {
 				return;
 			}
 
-			const intel = await this.domainIntel.lookup(report.url);
+			// Report the resolved destination, not the forwarder (e.g. a
+			// share.google link would otherwise send abuse reports to Google).
+			const targetUrl = report.finalUrl ?? report.url;
+			const intel = await this.domainIntel.lookup(targetUrl);
 
 			if (!provider.shouldRelay(intel)) {
 				this.logger.log(

@@ -1,17 +1,24 @@
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { DRIZZLE } from "../database/database.module.js";
-import * as schema from "../database/schema.js";
 import { maskUrl } from "../common/url-safety.js";
 import { env } from "../config/env.js";
+import { DRIZZLE } from "../database/database.module.js";
+import * as schema from "../database/schema.js";
 
 interface VerificationResponse {
 	verdict: "phishing" | "suspicious" | "legitimate";
 	confidence: number;
 	reasoning: string;
-	signals: Record<string, unknown>;
+	signals: {
+		page?: {
+			finalUrl?: string;
+			redirected?: boolean;
+			statusCode?: number | null;
+		};
+		[key: string]: unknown;
+	};
 }
 
 @Injectable()
@@ -46,12 +53,25 @@ export class VerificationService {
 			`Verification result for ${maskUrl(report.url)}: ${result.verdict} (confidence: ${result.confidence})`,
 		);
 
+		// Capture the resolved destination so the relay fan-out targets the real
+		// phishing host, not a forwarder like share.google.
+		const finalUrl = this.resolveFinalUrl(report.url, result);
+		if (finalUrl) {
+			this.logger.log(
+				`Report ${reportId} forwarder resolved: ${maskUrl(report.url)} -> ${maskUrl(finalUrl)}`,
+			);
+		}
+
 		const isPhishing = result.verdict === "phishing";
 
 		const newStatus = isPhishing ? "verified" : "rejected";
 		await this.db
 			.update(schema.reports)
-			.set({ status: newStatus, updatedAt: new Date() })
+			.set({
+				status: newStatus,
+				...(finalUrl ? { finalUrl } : {}),
+				updatedAt: new Date(),
+			})
 			.where(eq(schema.reports.id, reportId));
 		this.events.emit("report.updated", reportId);
 
@@ -59,7 +79,36 @@ export class VerificationService {
 		return { isPhishing };
 	}
 
-	private async callVerificationService(url: string): Promise<VerificationResponse> {
+	/**
+	 * Returns the resolved destination URL when the verification service
+	 * followed a redirect/forwarder, or null when there is nothing to override.
+	 */
+	private resolveFinalUrl(
+		reportedUrl: string,
+		result: VerificationResponse,
+	): string | null {
+		const page = result.signals?.page;
+		if (!page?.redirected || !page.finalUrl) return null;
+
+		let finalUrl: string;
+		try {
+			finalUrl = new URL(page.finalUrl).toString();
+		} catch {
+			this.logger.warn(
+				`Verification returned invalid finalUrl: ${page.finalUrl}`,
+			);
+			return null;
+		}
+
+		if (!/^https?:$/.test(new URL(finalUrl).protocol)) return null;
+		if (finalUrl === reportedUrl) return null;
+
+		return finalUrl;
+	}
+
+	private async callVerificationService(
+		url: string,
+	): Promise<VerificationResponse> {
 		const { VERIFICATION_API_URL, VERIFICATION_API_KEY } = env();
 
 		const response = await fetch(`${VERIFICATION_API_URL}/verify`, {
